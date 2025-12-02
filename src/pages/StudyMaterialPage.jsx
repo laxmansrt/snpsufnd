@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { studyMaterialAPI } from '../services/studyMaterialService';
 import { BookOpen, Upload, Download, FileText, Trash2, Eye, Search, Filter } from 'lucide-react';
+import clsx from 'clsx';
 
 const StudyMaterialPage = () => {
+    const { user } = useAuth();
+    const [materials, setMaterials] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [selectedClass, setSelectedClass] = useState('CSE - Sem 5');
     const [selectedSubject, setSelectedSubject] = useState('All Subjects');
     const [searchTerm, setSearchTerm] = useState('');
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [uploadData, setUploadData] = useState({
+        title: '',
+        subject: 'Database Management Systems',
+        class: 'CSE - Sem 5'
+    });
 
     const classes = ['CSE - Sem 5', 'CSE - Sem 3', 'ISE - Sem 5', 'ECE - Sem 4'];
     const subjects = [
@@ -18,32 +29,100 @@ const StudyMaterialPage = () => {
         'Web Technologies',
     ];
 
-    const materials = [
-        { id: 1, title: 'DBMS - Module 1 Notes', subject: 'Database Management Systems', type: 'PDF', size: '2.5 MB', uploadedBy: 'Dr. Kumar', date: '2025-11-20' },
-        { id: 2, title: 'OS Lab Manual', subject: 'Operating Systems', type: 'PDF', size: '1.8 MB', uploadedBy: 'Prof. Sharma', date: '2025-11-18' },
-        { id: 3, title: 'CN Question Bank', subject: 'Computer Networks', type: 'PDF', size: '890 KB', uploadedBy: 'Dr. Patel', date: '2025-11-15' },
-        { id: 4, title: 'SE Case Studies', subject: 'Software Engineering', type: 'DOCX', size: '1.2 MB', uploadedBy: 'Prof. Reddy', date: '2025-11-12' },
-        { id: 5, title: 'Web Tech Tutorial', subject: 'Web Technologies', type: 'PDF', size: '3.1 MB', uploadedBy: 'Dr. Iyer', date: '2025-11-10' },
-        { id: 6, title: 'DBMS - Module 2 PPT', subject: 'Database Management Systems', type: 'PPTX', size: '4.5 MB', uploadedBy: 'Dr. Kumar', date: '2025-11-08' },
-    ];
+    useEffect(() => {
+        loadMaterials();
+    }, [selectedClass, selectedSubject]);
 
-    const filteredMaterials = materials.filter(material => {
-        const matchesSearch = material.title.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesSubject = selectedSubject === 'All Subjects' || material.subject === selectedSubject;
-        return matchesSearch && matchesSubject;
-    });
+    const loadMaterials = async () => {
+        try {
+            setLoading(true);
+            const filters = {};
+            if (selectedClass !== 'All Classes') filters.class = selectedClass;
+            if (selectedSubject !== 'All Subjects') filters.subject = selectedSubject;
 
-    const handleFileSelect = (e) => {
-        setSelectedFile(e.target.files[0]);
-    };
-
-    const handleUpload = () => {
-        if (selectedFile) {
-            alert(`Uploading: ${selectedFile.name}`);
-            setSelectedFile(null);
-            setShowUploadModal(false);
+            const data = await studyMaterialAPI.getMaterials(filters);
+            setMaterials(data);
+        } catch (error) {
+            console.error('Error loading materials:', error);
+        } finally {
+            setLoading(false);
         }
     };
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                alert('File size must be less than 2MB');
+                e.target.value = null;
+                return;
+            }
+            setSelectedFile(file);
+        }
+    };
+
+    const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
+    const handleUpload = async () => {
+        if (!selectedFile || !uploadData.title) {
+            alert('Please fill all fields and select a file');
+            return;
+        }
+
+        try {
+            const base64File = await convertToBase64(selectedFile);
+
+            await studyMaterialAPI.uploadMaterial({
+                ...uploadData,
+                type: selectedFile.name.split('.').pop().toUpperCase(),
+                size: (selectedFile.size / 1024 / 1024).toFixed(2) + ' MB',
+                fileUrl: base64File
+            });
+
+            setShowUploadModal(false);
+            setSelectedFile(null);
+            setUploadData({ title: '', subject: 'Database Management Systems', class: 'CSE - Sem 5' });
+            loadMaterials();
+            alert('Material uploaded successfully!');
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Failed to upload material');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this material?')) {
+            try {
+                await studyMaterialAPI.deleteMaterial(id);
+                loadMaterials();
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('Failed to delete material');
+            }
+        }
+    };
+
+    const handleDownload = (fileUrl, fileName) => {
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const filteredMaterials = materials.filter(material =>
+        material.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const canManage = user?.role === 'faculty' || user?.role === 'admin';
 
     return (
         <div className="space-y-6">
@@ -51,15 +130,17 @@ const StudyMaterialPage = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">Study Materials</h1>
-                    <p className="text-gray-400">Manage and share study materials with students</p>
+                    <p className="text-gray-400">Access course materials and resources</p>
                 </div>
-                <button
-                    onClick={() => setShowUploadModal(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#d4af37] hover:bg-[#c5a028] text-[#111827] font-semibold rounded-lg transition-colors"
-                >
-                    <Upload size={18} />
-                    Upload Material
-                </button>
+                {canManage && (
+                    <button
+                        onClick={() => setShowUploadModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#d4af37] hover:bg-[#c5a028] text-[#111827] font-semibold rounded-lg transition-colors"
+                    >
+                        <Upload size={18} />
+                        Upload Material
+                    </button>
+                )}
             </div>
 
             {/* Filters */}
@@ -121,38 +202,57 @@ const StudyMaterialPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-700">
-                            {filteredMaterials.map((material) => (
-                                <tr key={material.id} className="hover:bg-gray-700/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <FileText className="text-[#d4af37]" size={20} />
-                                            <span className="text-white font-medium">{material.title}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-300">{material.subject}</td>
-                                    <td className="px-6 py-4">
-                                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-medium">
-                                            {material.type}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-300">{material.size}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-300">{material.uploadedBy}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-300">{material.date}</td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center justify-center gap-2">
-                                            <button className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors">
-                                                <Eye size={16} />
-                                            </button>
-                                            <button className="p-2 text-green-400 hover:bg-green-500/20 rounded-lg transition-colors">
-                                                <Download size={16} />
-                                            </button>
-                                            <button className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors">
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </td>
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-400">Loading materials...</td>
                                 </tr>
-                            ))}
+                            ) : filteredMaterials.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7" className="px-6 py-8 text-center text-gray-400">No materials found</td>
+                                </tr>
+                            ) : (
+                                filteredMaterials.map((material) => (
+                                    <tr key={material._id} className="hover:bg-gray-700/50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <FileText className="text-[#d4af37]" size={20} />
+                                                <span className="text-white font-medium">{material.title}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-300">{material.subject}</td>
+                                        <td className="px-6 py-4">
+                                            <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs font-medium">
+                                                {material.type}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-gray-300">{material.size}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-300">{material.uploadedBy?.name || 'Unknown'}</td>
+                                        <td className="px-6 py-4 text-sm text-gray-300">
+                                            {new Date(material.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <button
+                                                    onClick={() => handleDownload(material.fileUrl, material.title)}
+                                                    className="p-2 text-green-400 hover:bg-green-500/20 rounded-lg transition-colors"
+                                                    title="Download"
+                                                >
+                                                    <Download size={16} />
+                                                </button>
+                                                {canManage && (
+                                                    <button
+                                                        onClick={() => handleDelete(material._id)}
+                                                        className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -170,25 +270,43 @@ const StudyMaterialPage = () => {
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
                                 <input
                                     type="text"
+                                    value={uploadData.title}
+                                    onChange={(e) => setUploadData({ ...uploadData, title: e.target.value })}
                                     className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
                                     placeholder="Enter material title"
                                 />
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">Class</label>
+                                <select
+                                    value={uploadData.class}
+                                    onChange={(e) => setUploadData({ ...uploadData, class: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                >
+                                    {classes.map(cls => (
+                                        <option key={cls} value={cls}>{cls}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
-                                <select className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none">
+                                <select
+                                    value={uploadData.subject}
+                                    onChange={(e) => setUploadData({ ...uploadData, subject: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                >
                                     {subjects.filter(s => s !== 'All Subjects').map(sub => (
                                         <option key={sub} value={sub}>{sub}</option>
                                     ))}
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">File</label>
+                                <label className="block text-sm font-medium text-gray-300 mb-2">File (Max 2MB)</label>
                                 <input
                                     type="file"
                                     onChange={handleFileSelect}
                                     className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
-                                    accept=".pdf,.docx,.pptx,.doc,.ppt"
+                                    accept=".pdf,.docx,.pptx,.doc,.ppt,.txt,.jpg,.png"
                                 />
                                 {selectedFile && (
                                     <p className="mt-2 text-sm text-gray-400">Selected: {selectedFile.name}</p>
@@ -207,7 +325,7 @@ const StudyMaterialPage = () => {
                             </button>
                             <button
                                 onClick={handleUpload}
-                                disabled={!selectedFile}
+                                disabled={!selectedFile || !uploadData.title}
                                 className="px-4 py-2 bg-[#d4af37] hover:bg-[#c5a028] text-[#111827] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Upload
