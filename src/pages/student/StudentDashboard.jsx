@@ -1,27 +1,70 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { attendanceService } from '../../services/attendanceService';
+import { marksAPI } from '../../services/marksService';
 import { Users, BookOpen, Calendar, DollarSign, AlertTriangle, TrendingUp, Book } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const StudentDashboard = () => {
     const navigate = useNavigate();
-    // Mock Data for Charts
-    const attendanceData = [
+    const { user } = useAuth();
+    const [attendanceStats, setAttendanceStats] = useState({ percentage: 0, total: 0, present: 0 });
+    const [marksData, setMarksData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    // Mock Data for Weekly Attendance (since real API gives aggregate stats usually, or we'd need complex logic to map daily)
+    // For now, we'll keep the weekly chart static or try to map if we fetch daily records.
+    // Let's fetch daily records for the current week if possible, otherwise keep mock for the chart but real for the stat card.
+    const [weeklyAttendance, setWeeklyAttendance] = useState([
         { name: 'Mon', present: 1 },
         { name: 'Tue', present: 1 },
-        { name: 'Wed', present: 0.5 }, // Half day
+        { name: 'Wed', present: 1 },
         { name: 'Thu', present: 1 },
         { name: 'Fri', present: 1 },
         { name: 'Sat', present: 0 },
-    ];
+    ]);
 
-    const marksData = [
-        { subject: 'Math', marks: 85 },
-        { subject: 'Phys', marks: 78 },
-        { subject: 'Chem', marks: 92 },
-        { subject: 'CS', marks: 88 },
-        { subject: 'Eng', marks: 75 },
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            if (user?.studentData?.usn) {
+                try {
+                    // Fetch Attendance
+                    const attendanceReport = await attendanceService.getAttendanceReport({
+                        studentUsn: user.studentData.usn
+                    });
+                    setAttendanceStats(attendanceReport.stats);
+
+                    // Fetch Marks
+                    const marks = await marksAPI.getMarks({
+                        studentUsn: user.studentData.usn
+                    });
+
+                    // Transform marks for chart (group by subject, take average or latest)
+                    // Simple transformation: just take the latest marks for unique subjects
+                    const uniqueSubjects = {};
+                    marks.forEach(m => {
+                        if (!uniqueSubjects[m.subject] || new Date(m.date) > new Date(uniqueSubjects[m.subject].date)) {
+                            uniqueSubjects[m.subject] = m;
+                        }
+                    });
+
+                    const chartData = Object.values(uniqueSubjects).map(m => ({
+                        subject: m.subject,
+                        marks: (m.obtainedMarks / m.maxMarks) * 100 // Normalize to percentage
+                    }));
+                    setMarksData(chartData);
+
+                } catch (error) {
+                    console.error('Error fetching dashboard data:', error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchData();
+    }, [user]);
 
     return (
         <div className="space-y-6">
@@ -29,10 +72,10 @@ const StudentDashboard = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-[hsl(var(--primary))]">Student Dashboard</h1>
-                    <p className="text-gray-500">Welcome back, Rahul! Here's your academic overview.</p>
+                    <p className="text-gray-500">Welcome back, {user?.name}! Here's your academic overview.</p>
                 </div>
                 <div className="text-sm text-gray-500">
-                    Last login: Today, 10:30 AM
+                    {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                 </div>
             </div>
 
@@ -73,10 +116,10 @@ const StudentDashboard = () => {
                     <div className="bg-blue-500/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-blue-400">
                         <Calendar size={24} />
                     </div>
-                    <h3 className="text-3xl font-bold mb-1">85%</h3>
+                    <h3 className="text-3xl font-bold mb-1">{attendanceStats.percentage}%</h3>
                     <p className="text-gray-400 text-sm">Total Attendance</p>
-                    <div className="mt-4 inline-block px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded font-bold">
-                        Good Standing
+                    <div className={`mt-4 inline-block px-2 py-1 ${parseFloat(attendanceStats.percentage) >= 75 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'} text-xs rounded font-bold`}>
+                        {parseFloat(attendanceStats.percentage) >= 75 ? 'Good Standing' : 'Low Attendance'}
                     </div>
                 </div>
 
@@ -88,10 +131,10 @@ const StudentDashboard = () => {
                     <div className="bg-purple-500/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4 text-purple-400">
                         <TrendingUp size={24} />
                     </div>
-                    <h3 className="text-3xl font-bold mb-1">8.4</h3>
+                    <h3 className="text-3xl font-bold mb-1">{user?.studentData?.cgpa || 'N/A'}</h3>
                     <p className="text-gray-400 text-sm">Current CGPA</p>
                     <div className="mt-4 inline-block px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded font-bold">
-                        Semester 5
+                        Semester {user?.studentData?.semester || 'Current'}
                     </div>
                 </div>
 
@@ -133,15 +176,15 @@ const StudentDashboard = () => {
                     <h3 className="text-lg font-bold text-white mb-6">Subject Performance</h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={marksData}>
+                            <BarChart data={marksData.length > 0 ? marksData : [{ subject: 'No Data', marks: 0 }]}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                                 <XAxis dataKey="subject" stroke="#9ca3af" />
-                                <YAxis stroke="#9ca3af" />
+                                <YAxis stroke="#9ca3af" domain={[0, 100]} />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1f2937', border: 'none', color: '#fff' }}
                                     cursor={{ fill: '#374151' }}
                                 />
-                                <Bar dataKey="marks" fill="#d4af37" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="marks" fill="#d4af37" radius={[4, 4, 0, 0]} name="Marks %" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
@@ -152,15 +195,15 @@ const StudentDashboard = () => {
                     <h3 className="text-lg font-bold text-white mb-6">Weekly Attendance</h3>
                     <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={attendanceData}>
+                            <BarChart data={weeklyAttendance}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                                 <XAxis dataKey="name" stroke="#9ca3af" />
-                                <YAxis stroke="#9ca3af" />
+                                <YAxis stroke="#9ca3af" domain={[0, 1]} />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1f2937', border: 'none', color: '#fff' }}
                                     cursor={{ fill: '#374151' }}
                                 />
-                                <Bar dataKey="present" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="present" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Status" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
