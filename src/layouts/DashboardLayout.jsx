@@ -90,11 +90,11 @@ const DashboardLayout = () => {
             {/* Sidebar */}
             <aside
                 className={clsx(
-                    "fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-gray-300 transition-transform duration-300 ease-in-out border-r border-gray-800",
+                    "fixed inset-y-0 left-0 z-50 w-64 bg-[#111827] text-gray-300 transition-transform duration-300 ease-in-out border-r border-gray-800 flex flex-col",
                     !isSidebarOpen && "-translate-x-full lg:translate-x-0 lg:w-20"
                 )}
             >
-                <div className="h-16 flex items-center justify-between px-4 border-b border-gray-800 bg-[#1f2937]">
+                <div className="h-16 flex items-center justify-between px-4 border-b border-gray-800 bg-[#1f2937] shrink-0">
                     <div className={clsx("flex items-center gap-3 overflow-hidden", !isSidebarOpen && "lg:hidden")}>
                         <div className="w-8 h-8 rounded bg-[#d4af37] flex items-center justify-center text-[#111827] font-bold">
                             N
@@ -106,7 +106,7 @@ const DashboardLayout = () => {
                     </button>
                 </div>
 
-                <div className="p-4">
+                <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                     <div className={clsx("flex items-center gap-3 mb-8 p-3 rounded-xl bg-gray-800/50 border border-gray-700", !isSidebarOpen && "lg:justify-center lg:p-2")}>
                         <img src={user?.avatar} alt="User" className="w-10 h-10 rounded-full border-2 border-[#d4af37]" />
                         <div className={clsx("overflow-hidden", !isSidebarOpen && "lg:hidden")}>
@@ -139,7 +139,7 @@ const DashboardLayout = () => {
                     </nav>
                 </div>
 
-                <div className="absolute bottom-4 left-0 right-0 px-4">
+                <div className="p-4 border-t border-gray-800 shrink-0">
                     <button
                         onClick={handleLogout}
                         className={clsx(
