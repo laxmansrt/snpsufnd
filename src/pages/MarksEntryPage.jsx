@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { marksAPI } from '../services/marksService';
+import { attendanceService } from '../services/attendanceService';
 import { FileText, Upload, Save, Download, Search, Filter } from 'lucide-react';
 
 const MarksEntryPage = () => {
     const [selectedClass, setSelectedClass] = useState('CSE - Sem 5');
     const [selectedSubject, setSelectedSubject] = useState('Database Management Systems');
     const [selectedExam, setSelectedExam] = useState('Mid-Term 1');
+    const [students, setStudents] = useState([]);
     const [marks, setMarks] = useState({});
     const [saving, setSaving] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const classes = ['CSE - Sem 5', 'CSE - Sem 3', 'ISE - Sem 5', 'ECE - Sem 4'];
     const subjects = [
@@ -18,16 +22,25 @@ const MarksEntryPage = () => {
     ];
     const exams = ['Mid-Term 1', 'Mid-Term 2', 'Assignment 1', 'Assignment 2', 'Final Exam'];
 
-    const students = [
-        { id: 1, name: 'Rahul Kumar', usn: '1SI21CS045' },
-        { id: 2, name: 'Priya Sharma', usn: '1SI21CS048' },
-        { id: 3, name: 'Amit Singh', usn: '1SI21CS052' },
-        { id: 4, name: 'Sneha Gupta', usn: '1SI21CS055' },
-        { id: 5, name: 'Vikram Reddy', usn: '1SI21CS058' },
-        { id: 6, name: 'Anjali Desai', usn: '1SI21CS061' },
-        { id: 7, name: 'Arjun Patel', usn: '1SI21CS064' },
-        { id: 8, name: 'Meera Iyer', usn: '1SI21CS067' },
-    ];
+    useEffect(() => {
+        loadStudents();
+    }, [selectedClass]);
+
+    const loadStudents = async () => {
+        try {
+            setLoading(true);
+            const data = await attendanceService.getStudentsForClass(selectedClass);
+            setStudents(data);
+
+            // Also try to fetch existing marks for this exam/subject/class if needed
+            // For now, we start fresh or could implement fetching existing marks to pre-fill
+        } catch (error) {
+            console.error('Error loading students:', error);
+            alert('Failed to load students');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleMarkChange = (usn, value) => {
         setMarks(prev => ({
@@ -38,10 +51,34 @@ const MarksEntryPage = () => {
 
     const handleSave = async () => {
         setSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        alert('Marks saved successfully!');
-        setSaving(false);
+        try {
+            const marksData = Object.entries(marks).map(([usn, obtainedMarks]) => ({
+                studentUsn: usn,
+                obtainedMarks: Number(obtainedMarks)
+            }));
+
+            if (marksData.length === 0) {
+                alert('No marks entered');
+                setSaving(false);
+                return;
+            }
+
+            await marksAPI.uploadMarks({
+                marksData,
+                class: selectedClass,
+                subject: selectedSubject,
+                examType: selectedExam,
+                maxMarks: 100 // Assuming 100 for now, could be an input
+            });
+
+            alert('Marks saved successfully!');
+            setMarks({}); // Clear or keep? Usually keep to show what was saved.
+        } catch (error) {
+            console.error('Error saving marks:', error);
+            alert('Failed to save marks');
+        } finally {
+            setSaving(false);
+        }
     };
 
     const handleExport = () => {
@@ -120,42 +157,53 @@ const MarksEntryPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-700">
-                            {students.map((student) => {
-                                const mark = marks[student.usn] || '';
-                                const grade = mark >= 90 ? 'A+' : mark >= 80 ? 'A' : mark >= 70 ? 'B+' : mark >= 60 ? 'B' : mark >= 50 ? 'C' : mark >= 40 ? 'D' : 'F';
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-8 text-center text-gray-400">Loading students...</td>
+                                </tr>
+                            ) : students.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-8 text-center text-gray-400">No students found for this class</td>
+                                </tr>
+                            ) : (
+                                students.map((student) => {
+                                    const usn = student.studentData?.usn || student.usn || 'N/A'; // Handle different data structures
+                                    const mark = marks[usn] || '';
+                                    const grade = mark >= 90 ? 'A+' : mark >= 80 ? 'A' : mark >= 70 ? 'B+' : mark >= 60 ? 'B' : mark >= 50 ? 'C' : mark >= 40 ? 'D' : 'F';
 
-                                return (
-                                    <tr key={student.id} className="hover:bg-gray-700/50 transition-colors">
-                                        <td className="px-6 py-4 text-sm text-gray-300 font-mono">
-                                            {student.usn}
-                                        </td>
-                                        <td className="px-6 py-4 text-sm text-white font-medium">
-                                            {student.name}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                value={mark}
-                                                onChange={(e) => handleMarkChange(student.usn, e.target.value)}
-                                                className="w-24 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-center focus:ring-2 focus:ring-[#d4af37] outline-none"
-                                                placeholder="0"
-                                            />
-                                        </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`px-3 py-1 rounded-full text-sm font-bold ${grade === 'A+' || grade === 'A' ? 'bg-green-500/20 text-green-400' :
+                                    return (
+                                        <tr key={student._id || student.id} className="hover:bg-gray-700/50 transition-colors">
+                                            <td className="px-6 py-4 text-sm text-gray-300 font-mono">
+                                                {usn}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-white font-medium">
+                                                {student.name}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max="100"
+                                                    value={mark}
+                                                    onChange={(e) => handleMarkChange(usn, e.target.value)}
+                                                    className="w-24 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-center focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                                    placeholder="0"
+                                                />
+                                            </td>
+                                            <td className="px-6 py-4 text-center">
+                                                <span className={`px-3 py-1 rounded-full text-sm font-bold ${grade === 'A+' || grade === 'A' ? 'bg-green-500/20 text-green-400' :
                                                     grade === 'B+' || grade === 'B' ? 'bg-blue-500/20 text-blue-400' :
                                                         grade === 'C' ? 'bg-yellow-500/20 text-yellow-400' :
                                                             grade === 'D' ? 'bg-orange-500/20 text-orange-400' :
                                                                 'bg-red-500/20 text-red-400'
-                                                }`}>
-                                                {mark ? grade : '-'}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                                                    }`}>
+                                                    {mark ? grade : '-'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -165,7 +213,7 @@ const MarksEntryPage = () => {
             <div className="flex justify-end">
                 <button
                     onClick={handleSave}
-                    disabled={saving}
+                    disabled={saving || students.length === 0}
                     className="inline-flex items-center gap-2 px-6 py-3 bg-[#d4af37] hover:bg-[#c5a028] text-[#111827] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <Save size={20} />
