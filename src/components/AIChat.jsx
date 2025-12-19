@@ -102,9 +102,9 @@ const AIChat = () => {
                                 <div className="w-12 h-12 bg-[#d4af37]/10 rounded-full flex items-center justify-center text-[#d4af37] mx-auto mb-3">
                                     <Bot size={24} />
                                 </div>
-                                <h4 className="text-white font-medium mb-1">Welcome, {user?.name}!</h4>
+                                <h4 className="text-white font-medium mb-1">Welcome{user ? `, ${user.name}` : ''}!</h4>
                                 <p className="text-gray-400 text-xs px-6">
-                                    I'm your intelligent assistant. Ask me anything about announcements, attendance, results, or portal features.
+                                    I'm your intelligent assistant. {user ? "Ask me anything about announcements, attendance, results, or portal features." : "I can help you with registration, login, or general information about Sapthagiri NPS University."}
                                 </p>
                             </div>
                         )}

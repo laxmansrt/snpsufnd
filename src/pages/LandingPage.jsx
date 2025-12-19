@@ -11,6 +11,7 @@ import campus7 from '../assets/campus7.png';
 import campus8 from '../assets/campus8.png';
 import feature1 from '../assets/feature_section_1.png';
 import feature2 from '../assets/feature_section_2.png';
+import AIChat from '../components/AIChat';
 
 const LandingPage = () => {
     const [formData, setFormData] = useState({
@@ -473,6 +474,7 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
+            <AIChat />
         </div>
     );
 };

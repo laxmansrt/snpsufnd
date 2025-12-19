@@ -6,7 +6,7 @@ import clsx from 'clsx';
 
 const AttendancePage = () => {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState(user?.role === 'faculty' ? 'mark' : 'view');
+    const [activeTab, setActiveTab] = useState((user?.role === 'faculty' || user?.role === 'admin') ? 'mark' : 'view');
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedClass, setSelectedClass] = useState('CSE - Sem 5');
     const [selectedSubject, setSelectedSubject] = useState('Database Management Systems');
@@ -49,13 +49,17 @@ const AttendancePage = () => {
         }
     }, [selectedClass, activeTab]);
 
-    // Load report for student or parent
+    // Load report for student, parent, or class-wise for faculty/admin
     useEffect(() => {
-        const usn = user?.role === 'parent' ? user?.parentData?.childUsn : user?.studentData?.usn;
-        if (activeTab === 'view' && usn) {
-            loadReport(usn);
+        if (activeTab === 'view') {
+            if (user?.role === 'student' || user?.role === 'parent') {
+                const usn = user?.role === 'parent' ? user?.parentData?.childUsn : user?.studentData?.usn;
+                if (usn) loadReport({ studentUsn: usn });
+            } else if ((user?.role === 'faculty' || user?.role === 'admin') && selectedClass) {
+                loadReport({ class: selectedClass });
+            }
         }
-    }, [activeTab]);
+    }, [activeTab, selectedClass]);
 
     const loadStudents = async () => {
         try {
@@ -77,12 +81,10 @@ const AttendancePage = () => {
         }
     };
 
-    const loadReport = async (usn) => {
+    const loadReport = async (filters) => {
         try {
             setLoading(true);
-            const data = await attendanceAPI.getAttendanceReport({
-                studentUsn: usn,
-            });
+            const data = await attendanceAPI.getAttendanceReport(filters);
             setReport(data);
         } catch (error) {
             console.error('Error loading report:', error);
@@ -170,7 +172,7 @@ const AttendancePage = () => {
             </div>
 
             {/* Tabs */}
-            {user?.role === 'faculty' && (
+            {(user?.role === 'faculty' || user?.role === 'admin') && (
                 <div className="flex gap-2 bg-gray-800 p-1 rounded-lg w-fit">
                     <button
                         onClick={() => setActiveTab('mark')}
@@ -198,7 +200,7 @@ const AttendancePage = () => {
             )}
 
             {/* Mark Attendance Tab */}
-            {activeTab === 'mark' && user?.role === 'faculty' && (
+            {activeTab === 'mark' && (user?.role === 'faculty' || user?.role === 'admin') && (
                 <div className="space-y-6">
                     {/* Filters */}
                     <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -312,6 +314,26 @@ const AttendancePage = () => {
             {/* View Reports Tab */}
             {activeTab === 'view' && (
                 <div className="space-y-6">
+                    {/* Class Selector for Faculty/Admin in View Mode */}
+                    {(user?.role === 'faculty' || user?.role === 'admin') && (
+                        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+                            <div className="flex flex-col md:flex-row md:items-center gap-4">
+                                <div className="flex-1">
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">Select Class to View Report</label>
+                                    <select
+                                        value={selectedClass}
+                                        onChange={(e) => setSelectedClass(e.target.value)}
+                                        className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                    >
+                                        {classes.map(cls => (
+                                            <option key={cls} value={cls}>{cls}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {loading ? (
                         <div className="text-center py-12 text-gray-400">Loading report...</div>
                     ) : report ? (
