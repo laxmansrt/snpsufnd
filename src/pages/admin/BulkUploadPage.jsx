@@ -26,6 +26,28 @@ const BulkUploadPage = () => {
         }
     };
 
+    const normalizeData = (data) => {
+        return data.map(row => {
+            const normalizedRow = {};
+            Object.keys(row).forEach(key => {
+                const normalizedKey = key.trim().toLowerCase();
+                // Map common variations to standard keys
+                if (normalizedKey === 'student name' || normalizedKey === 'name') normalizedRow.name = row[key];
+                else if (normalizedKey === 'email id' || normalizedKey === 'email') normalizedRow.email = row[key];
+                else if (normalizedKey === 'role') normalizedRow.role = row[key].toLowerCase();
+                else if (normalizedKey === 'password') normalizedRow.password = row[key];
+                else if (normalizedKey === 'usn') normalizedRow.usn = row[key];
+                else if (normalizedKey === 'class') normalizedRow.class = row[key];
+                else if (normalizedKey === 'semester') normalizedRow.semester = row[key];
+                else if (normalizedKey === 'department') normalizedRow.department = row[key];
+                else if (normalizedKey === 'employee id' || normalizedKey === 'employeeid') normalizedRow.employeeId = row[key];
+                else if (normalizedKey === 'designation') normalizedRow.designation = row[key];
+                else normalizedRow[normalizedKey] = row[key]; // Keep other keys as is
+            });
+            return normalizedRow;
+        });
+    };
+
     const parseFile = (file) => {
         setLoading(true);
         const reader = new FileReader();
@@ -36,7 +58,8 @@ const BulkUploadPage = () => {
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                setPreviewData(jsonData);
+                const normalizedData = normalizeData(jsonData);
+                setPreviewData(normalizedData);
             } catch (err) {
                 setError('Failed to parse file. Please ensure it is a valid Excel file.');
                 console.error(err);
