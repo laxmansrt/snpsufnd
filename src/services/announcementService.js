@@ -1,12 +1,4 @@
-const API_URL = 'https://snpsubknd.onrender.com/api';
-
-const getAuthHeaders = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return {
-        'Content-Type': 'application/json',
-        ...(user?.token && { Authorization: `Bearer ${user.token}` }),
-    };
-};
+import { API_URL, getAuthHeaders } from './config';
 
 export const announcementAPI = {
     // Create announcement

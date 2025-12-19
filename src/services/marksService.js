@@ -1,12 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://snpsubknd.onrender.com/api';
-
-const getAuthHeaders = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return {
-        'Content-Type': 'application/json',
-        ...(user?.token && { Authorization: `Bearer ${user.token}` }),
-    };
-};
+import { API_URL, getAuthHeaders } from './config';
 
 export const marksAPI = {
     // Get marks for current student
@@ -29,6 +21,15 @@ export const marksAPI = {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to upload marks');
+        return data;
+    },
+
+    getGlobalStats: async () => {
+        const response = await fetch(`${API_URL}/marks/stats`, {
+            headers: getAuthHeaders(),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch stats');
         return data;
     },
 };

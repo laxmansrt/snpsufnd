@@ -1,13 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://snpsubknd.onrender.com/api';
-
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return {
-        'Content-Type': 'application/json',
-        ...(user?.token && { Authorization: `Bearer ${user.token}` }),
-    };
-};
+import { API_URL, getAuthHeaders } from './config';
 
 // Auth API
 export const authAPI = {
@@ -50,6 +41,16 @@ export const authAPI = {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to fetch user');
+        return data;
+    },
+
+    getUsers: async (role) => {
+        const queryParams = role ? `?role=${role}` : '';
+        const response = await fetch(`${API_URL}/auth/users${queryParams}`, {
+            headers: getAuthHeaders(),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch users');
         return data;
     },
 };

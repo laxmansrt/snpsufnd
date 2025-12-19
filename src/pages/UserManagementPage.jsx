@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
 import { Search, Filter, Plus, MoreVertical, Edit, Trash2, UserCheck, UserX, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { authAPI } from '../services/api';
+import { useEffect } from 'react';
 
 const UserManagementPage = () => {
     const [activeTab, setActiveTab] = useState('students');
     const [searchTerm, setSearchTerm] = useState('');
+    const [users, setUsers] = useState({
+        students: [],
+        faculty: [],
+        staff: [],
+    });
+    const [loading, setLoading] = useState(true);
 
     const tabs = [
         { id: 'students', label: 'Students' },
@@ -12,24 +20,50 @@ const UserManagementPage = () => {
         { id: 'staff', label: 'Staff' },
     ];
 
-    // Mock Data
-    const users = {
-        students: [
-            { id: 1, name: 'Rahul Sharma', email: 'rahul@example.com', usn: '1SP21CS001', department: 'CSE', semester: '5', status: 'Active' },
-            { id: 2, name: 'Priya Patel', email: 'priya@example.com', usn: '1SP21CS002', department: 'CSE', semester: '5', status: 'Active' },
-            { id: 3, name: 'Amit Kumar', email: 'amit@example.com', usn: '1SP21CS003', department: 'CSE', semester: '5', status: 'Inactive' },
-            { id: 4, name: 'Sneha Gupta', email: 'sneha@example.com', usn: '1SP21EC001', department: 'ECE', semester: '3', status: 'Active' },
-        ],
-        faculty: [
-            { id: 1, name: 'Dr. N C Mahendra Babu', email: 'mahendra@snpsu.edu.in', employeeId: 'FAC001', department: 'CSE', designation: 'Dean', status: 'Active' },
-            { id: 2, name: 'Dr. R. Kumar', email: 'kumar@snpsu.edu.in', employeeId: 'FAC002', department: 'ECE', designation: 'Professor', status: 'Active' },
-            { id: 3, name: 'Prof. S. Sharma', email: 'sharma@snpsu.edu.in', employeeId: 'FAC003', department: 'EEE', designation: 'Associate Professor', status: 'Active' },
-        ],
-        staff: [
-            { id: 1, name: 'Rajesh Verma', email: 'rajesh@snpsu.edu.in', employeeId: 'STF001', department: 'Administration', designation: 'Office Manager', status: 'Active' },
-            { id: 2, name: 'Sunita Rao', email: 'sunita@snpsu.edu.in', employeeId: 'STF002', department: 'Library', designation: 'Librarian', status: 'Active' },
-            { id: 3, name: 'Mohan Das', email: 'mohan@snpsu.edu.in', employeeId: 'STF003', department: 'IT Support', designation: 'System Admin', status: 'Inactive' },
-        ],
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            const allUsers = await authAPI.getUsers();
+
+            const organizedUsers = {
+                students: allUsers.filter(u => u.role === 'student').map(u => ({
+                    id: u._id,
+                    name: u.name,
+                    email: u.email,
+                    usn: u.studentData?.usn || 'N/A',
+                    department: u.studentData?.department || 'N/A',
+                    semester: u.studentData?.semester || 'N/A',
+                    status: 'Active'
+                })),
+                faculty: allUsers.filter(u => u.role === 'faculty').map(u => ({
+                    id: u._id,
+                    name: u.name,
+                    email: u.email,
+                    employeeId: u.facultyData?.employeeId || 'N/A',
+                    department: u.facultyData?.department || 'N/A',
+                    designation: u.facultyData?.designation || 'N/A',
+                    status: 'Active'
+                })),
+                staff: allUsers.filter(u => u.role === 'staff' || u.role === 'admin').map(u => ({
+                    id: u._id,
+                    name: u.name,
+                    email: u.email,
+                    employeeId: u.facultyData?.employeeId || 'N/A',
+                    department: u.facultyData?.department || 'N/A',
+                    designation: u.facultyData?.designation || 'N/A',
+                    status: 'Active'
+                })),
+            };
+            setUsers(organizedUsers);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const currentUsers = users[activeTab] || [];

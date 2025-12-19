@@ -3,6 +3,7 @@ import { BookOpen, Search, Plus, Filter } from 'lucide-react';
 
 const AcademicsPage = () => {
     const [activeTab, setActiveTab] = useState('courses');
+    const [selectedClass, setSelectedClass] = useState('CSE 5A');
 
     const tabs = [
         { id: 'courses', label: 'Courses & Departments' },
@@ -14,7 +15,8 @@ const AcademicsPage = () => {
     const departments = [
         { id: 1, name: 'Computer Science & Engineering', code: 'CSE', duration: '4 Years', students: 240, hod: 'Dr. N C Mahendra Babu' },
         { id: 2, name: 'Electronics & Communication', code: 'ECE', duration: '4 Years', students: 180, hod: 'Dr. R. Kumar' },
-        { id: 3, name: 'Electrical & Electronics', code: 'EEE', duration: '4 Years', students: 120, hod: 'Dr. S. Sharma' },
+        { id: 3, name: 'Information Science & Engineering', code: 'ISE', duration: '4 Years', students: 120, hod: 'Dr. B. S. Prasad' },
+        { id: 4, name: 'Electrical & Electronics', code: 'EEE', duration: '4 Years', students: 120, hod: 'Dr. S. Sharma' },
     ];
 
     const subjects = [
@@ -24,13 +26,36 @@ const AcademicsPage = () => {
         { id: 4, name: 'Digital Logic Design', code: 'EC201', semester: '2', credits: 4, department: 'ECE' },
     ];
 
-    const timetable = [
-        { day: 'Monday', slots: ['Data Structures', 'OS Lab', 'DBMS', 'Break', 'Mathematics', 'Physics'] },
-        { day: 'Tuesday', slots: ['DBMS', 'Data Structures', 'OS', 'Break', 'Chemistry', 'English'] },
-        { day: 'Wednesday', slots: ['Operating Systems', 'DBMS Lab', 'Mathematics', 'Break', 'Data Structures', 'Sports'] },
-        { day: 'Thursday', slots: ['Mathematics', 'Physics', 'DBMS', 'Break', 'OS', 'Data Structures'] },
-        { day: 'Friday', slots: ['Chemistry', 'English', 'Data Structures', 'Break', 'Project Work', 'Project Work'] },
-    ];
+    const timetables = {
+        'CSE 5A': [
+            { day: 'Monday', slots: ['Data Structures', 'OS Lab', 'DBMS', 'Break', 'Mathematics', 'Physics'] },
+            { day: 'Tuesday', slots: ['DBMS', 'Data Structures', 'OS', 'Break', 'Chemistry', 'English'] },
+            { day: 'Wednesday', slots: ['Operating Systems', 'DBMS Lab', 'Mathematics', 'Break', 'Data Structures', 'Sports'] },
+            { day: 'Thursday', slots: ['Mathematics', 'Physics', 'DBMS', 'Break', 'OS', 'Data Structures'] },
+            { day: 'Friday', slots: ['Chemistry', 'English', 'Data Structures', 'Break', 'Project Work', 'Project Work'] },
+        ],
+        'CSE 5B': [
+            { day: 'Monday', slots: ['OS', 'DBMS', 'Data Structures', 'Break', 'Physics', 'Mathematics'] },
+            { day: 'Tuesday', slots: ['Data Structures', 'OS Lab', 'English', 'Break', 'DBMS', 'Chemistry'] },
+            { day: 'Wednesday', slots: ['Mathematics', 'Physics', 'Sports', 'Break', 'DBMS Lab', 'OS'] },
+            { day: 'Thursday', slots: ['DBMS', 'Data Structures', 'OS', 'Break', 'Mathematics', 'Physics'] },
+            { day: 'Friday', slots: ['Project Work', 'Project Work', 'Chemistry', 'Break', 'English', 'Data Structures'] },
+        ],
+        'ECE 3A': [
+            { day: 'Monday', slots: ['Network Analysis', 'Digital Electronics', 'Signals & Systems', 'Break', 'Mathematics', 'Physics'] },
+            { day: 'Tuesday', slots: ['Signals & Systems', 'DE Lab', 'Mathematics', 'Break', 'Network Analysis', 'English'] },
+            { day: 'Wednesday', slots: ['Digital Electronics', 'NA Lab', 'English', 'Break', 'Signals & Systems', 'Sports'] },
+            { day: 'Thursday', slots: ['Mathematics', 'Physics', 'Network Analysis', 'Break', 'Digital Electronics', 'Signals & Systems'] },
+            { day: 'Friday', slots: ['Chemistry', 'Mathematics', 'Signals & Systems', 'Break', 'Project Work', 'Project Work'] },
+        ],
+        'ISE 3A': [
+            { day: 'Monday', slots: ['Discrete Mathematics', 'Java Programming', 'Data Comm', 'Break', 'Physics', 'Chemistry'] },
+            { day: 'Tuesday', slots: ['Java Lab', 'Discrete Math', 'English', 'Break', 'Data Comm', 'Mathematics'] },
+            { day: 'Wednesday', slots: ['Data Comm', 'Java', 'Sports', 'Break', 'Math Lab', 'Discrete Math'] },
+            { day: 'Thursday', slots: ['Physics', 'Chemistry', 'Java', 'Break', 'Data Comm', 'Discrete Math'] },
+            { day: 'Friday', slots: ['English', 'Mathematics', 'Project Work', 'Break', 'Project Work', 'Java'] },
+        ]
+    };
 
     return (
         <div className="space-y-6">
@@ -53,8 +78,8 @@ const AcademicsPage = () => {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-6 py-3 font-medium transition-colors ${activeTab === tab.id
-                                ? 'text-[#d4af37] border-b-2 border-[#d4af37]'
-                                : 'text-gray-400 hover:text-gray-300'
+                            ? 'text-[#d4af37] border-b-2 border-[#d4af37]'
+                            : 'text-gray-400 hover:text-gray-300'
                             }`}
                     >
                         {tab.label}
@@ -160,11 +185,16 @@ const AcademicsPage = () => {
                 {activeTab === 'timetable' && (
                     <div className="space-y-4">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-bold text-white">Weekly Timetable - CSE 5A</h3>
-                            <select className="px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-[#d4af37] outline-none">
-                                <option>CSE 5A</option>
-                                <option>CSE 5B</option>
-                                <option>ECE 3A</option>
+                            <h3 className="text-lg font-bold text-white">Weekly Timetable - {selectedClass}</h3>
+                            <select
+                                value={selectedClass}
+                                onChange={(e) => setSelectedClass(e.target.value)}
+                                className="px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                            >
+                                <option value="CSE 5A">CSE 5A</option>
+                                <option value="CSE 5B">CSE 5B</option>
+                                <option value="ECE 3A">ECE 3A</option>
+                                <option value="ISE 3A">ISE 3A</option>
                             </select>
                         </div>
 
@@ -182,14 +212,14 @@ const AcademicsPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-700">
-                                    {timetable.map((day, idx) => (
+                                    {timetables[selectedClass].map((day, idx) => (
                                         <tr key={idx} className="hover:bg-[#0f172a] transition-colors">
                                             <td className="px-4 py-3 text-white font-medium">{day.day}</td>
                                             {day.slots.map((slot, slotIdx) => (
                                                 <td key={slotIdx} className="px-4 py-3 text-center">
                                                     <span className={`inline-block px-3 py-1 rounded text-xs font-medium ${slot === 'Break'
-                                                            ? 'bg-gray-700 text-gray-300'
-                                                            : 'bg-[#d4af37]/20 text-[#d4af37]'
+                                                        ? 'bg-gray-700 text-gray-300'
+                                                        : 'bg-[#d4af37]/20 text-[#d4af37]'
                                                         }`}>
                                                         {slot}
                                                     </span>

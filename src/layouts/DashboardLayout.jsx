@@ -19,6 +19,7 @@ import {
     HelpCircle
 } from 'lucide-react';
 import clsx from 'clsx';
+import AIChat from '../components/AIChat';
 
 const DashboardLayout = () => {
     const { user, logout } = useAuth();
@@ -185,6 +186,7 @@ const DashboardLayout = () => {
                 <main className="flex-1 p-6 overflow-x-hidden bg-[#0f172a]">
                     <Outlet />
                 </main>
+                <AIChat />
             </div>
         </div>
     );

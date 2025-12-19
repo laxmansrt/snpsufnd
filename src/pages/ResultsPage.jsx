@@ -1,19 +1,39 @@
 import React, { useState } from 'react';
 import { Search, Filter, Download, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { marksAPI } from '../services/marksService';
+import { useEffect } from 'react';
 
 const ResultsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSemester, setSelectedSemester] = useState('all');
 
-    // Mock Data
-    const results = [
-        { id: 1, studentName: 'Rahul Sharma', usn: '1SP21CS001', semester: '5', sgpa: '8.5', cgpa: '8.2', status: 'Pass' },
-        { id: 2, studentName: 'Priya Patel', usn: '1SP21CS002', semester: '5', sgpa: '9.1', cgpa: '8.9', status: 'Pass' },
-        { id: 3, studentName: 'Amit Kumar', usn: '1SP21CS003', semester: '5', sgpa: '4.5', cgpa: '6.0', status: 'Fail' },
-        { id: 4, studentName: 'Sneha Gupta', usn: '1SP21CS004', semester: '3', sgpa: '7.8', cgpa: '7.5', status: 'Pass' },
-        { id: 5, studentName: 'Vikram Singh', usn: '1SP21CS005', semester: '3', sgpa: '8.0', cgpa: '7.9', status: 'Pass' },
-    ];
+    const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchResults();
+    }, []);
+
+    const fetchResults = async () => {
+        try {
+            setLoading(true);
+            const data = await marksAPI.getMarks();
+            setResults(data.map(r => ({
+                id: r._id,
+                studentName: r.studentName,
+                usn: r.studentUsn,
+                semester: r.class.split('Sem ')[1] || 'N/A',
+                sgpa: (r.obtainedMarks / r.maxMarks * 10).toFixed(1), // Mock SGPA calculation
+                cgpa: (r.obtainedMarks / r.maxMarks * 10).toFixed(1), // Mock CGPA calculation
+                status: r.obtainedMarks >= (r.maxMarks * 0.4) ? 'Pass' : 'Fail'
+            })));
+        } catch (error) {
+            console.error('Error fetching results:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const filteredResults = results.filter(result => {
         const matchesSearch = result.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||

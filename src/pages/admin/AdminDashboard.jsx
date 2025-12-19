@@ -4,6 +4,8 @@ import { Users, IndianRupee, BookOpen, UserCheck, TrendingUp, AlertCircle, Plus,
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import * as XLSX from 'xlsx';
 import { authAPI, announcementAPI } from '../../services/api';
+import { attendanceAPI } from '../../services/attendanceService';
+import { marksAPI } from '../../services/marksService';
 
 const AdminDashboard = () => {
     const [showAddUserModal, setShowAddUserModal] = useState(false);
@@ -11,6 +13,40 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', content: '' });
     const [inquiries, setInquiries] = useState([]);
+    const [stats, setStats] = useState({
+        students: 0,
+        faculty: 0,
+        staff: 0,
+        total: 0,
+        attendance: 0,
+        results: 0
+    });
+
+    useEffect(() => {
+        fetchStats();
+    }, []);
+
+    const fetchStats = async () => {
+        try {
+            const [allUsers, attStats, resStats] = await Promise.all([
+                authAPI.getUsers(),
+                attendanceAPI.getGlobalStats(),
+                marksAPI.getGlobalStats()
+            ]);
+
+            const counts = {
+                students: allUsers.filter(u => u.role === 'student').length,
+                faculty: allUsers.filter(u => u.role === 'faculty').length,
+                staff: allUsers.filter(u => u.role === 'staff' || u.role === 'admin').length,
+                total: allUsers.length,
+                attendance: attStats.percentage,
+                results: resStats.averagePercentage
+            };
+            setStats(counts);
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+        }
+    };
 
     useEffect(() => {
         const loadInquiries = () => {
@@ -168,7 +204,7 @@ const AdminDashboard = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-400 text-sm">Total Students</p>
-                            <h3 className="text-3xl font-bold mt-1">1,450</h3>
+                            <h3 className="text-3xl font-bold mt-1">{stats.students.toLocaleString()}</h3>
                         </div>
                         <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
                             <Users size={24} />
@@ -194,7 +230,7 @@ const AdminDashboard = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-400 text-sm">Total Faculty</p>
-                            <h3 className="text-3xl font-bold mt-1">120</h3>
+                            <h3 className="text-3xl font-bold mt-1">{stats.faculty.toLocaleString()}</h3>
                         </div>
                         <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
                             <UserCheck size={24} />
@@ -208,31 +244,32 @@ const AdminDashboard = () => {
                 <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg text-white">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-gray-400 text-sm">Fee Collection</p>
-                            <h3 className="text-3xl font-bold mt-1">₹2.4Cr</h3>
+                            <p className="text-gray-400 text-sm">Attendance</p>
+                            <h3 className="text-3xl font-bold mt-1">{stats.attendance}%</h3>
                         </div>
                         <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
-                            <IndianRupee size={24} />
+                            <TrendingUp size={24} />
                         </div>
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-sm text-green-400">
                         <TrendingUp size={16} />
-                        <span>85% of target collected</span>
+                        <span>University average</span>
                     </div>
                 </div>
 
                 <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg text-white">
                     <div className="flex justify-between items-start">
                         <div>
-                            <p className="text-gray-400 text-sm">Pending Issues</p>
-                            <h3 className="text-3xl font-bold mt-1">12</h3>
+                            <p className="text-gray-400 text-sm">Performance</p>
+                            <h3 className="text-3xl font-bold mt-1">{stats.results}%</h3>
                         </div>
                         <div className="p-2 bg-red-500/20 rounded-lg text-red-400">
-                            <AlertCircle size={24} />
+                            <TrendingUp size={24} />
                         </div>
                     </div>
-                    <div className="mt-4 flex items-center gap-2 text-sm text-red-400">
-                        <span>Requires attention</span>
+                    <div className="mt-4 flex items-center gap-2 text-sm text-purple-400">
+                        <TrendingUp size={16} />
+                        <span>Average marks</span>
                     </div>
                 </div>
             </div>
@@ -454,7 +491,7 @@ const AdminDashboard = () => {
                                 <X size={24} />
                             </button>
                         </div>
-                        <form onSubmit={handlePostNotice} className="p-6 space-y-4">
+                        <form onSubmit={handlePostPostNotice} className="p-6 space-y-4">
                             {message.content && (
                                 <div className={`p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     {message.content}

@@ -4,15 +4,7 @@ import { lostFoundAPI } from './api'; // Re-using the base API_URL from api.js l
 // However, api.js exports specific objects. I should probably add studyMaterialAPI to api.js or create a new service file.
 // Let's create a new service file that follows the pattern.
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://snpsubknd.onrender.com/api';
-
-const getAuthHeaders = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return {
-        'Content-Type': 'application/json',
-        ...(user?.token && { Authorization: `Bearer ${user.token}` }),
-    };
-};
+import { API_URL, getAuthHeaders } from './config';
 
 export const studyMaterialAPI = {
     getMaterials: async (filters = {}) => {

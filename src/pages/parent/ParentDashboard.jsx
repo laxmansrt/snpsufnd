@@ -2,38 +2,70 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, BookOpen, Calendar, DollarSign, TrendingUp, AlertCircle, MessageSquare, Bus } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { useAuth } from '../../context/AuthContext';
+import { attendanceAPI } from '../../services/attendanceService';
+import { marksAPI } from '../../services/marksService';
+import { useEffect, useState } from 'react';
 
 const ParentDashboard = () => {
     const navigate = useNavigate();
-    // Mock Data for Child
-    const childInfo = {
-        name: "Rahul Kumar",
-        class: "CSE - Sem 5",
-        rollNo: "1SI21CS045",
-        attendance: 85,
-        cgpa: 8.4
+    const { user } = useAuth();
+    const [loading, setLoading] = useState(true);
+    const [childInfo, setChildInfo] = useState({
+        name: user?.parentData?.childName || "Student",
+        class: "N/A",
+        rollNo: user?.parentData?.childUsn || "N/A",
+        attendance: 0,
+        cgpa: 0
+    });
+
+    const [attendanceData, setAttendanceData] = useState([]);
+    const [marksData, setMarksData] = useState([]);
+    const [feeData, setFeeData] = useState([
+        { name: 'Paid', value: 0 },
+        { name: 'Pending', value: 0 },
+    ]);
+
+    useEffect(() => {
+        if (user?.parentData?.childUsn) {
+            fetchChildData();
+        }
+    }, [user]);
+
+    const fetchChildData = async () => {
+        try {
+            setLoading(true);
+            const usn = user.parentData.childUsn;
+
+            // Fetch Attendance
+            const attReport = await attendanceAPI.getAttendanceReport({ studentUsn: usn });
+            setAttendanceData(attReport.records.slice(0, 5).map(r => ({
+                name: new Date(r.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                present: r.status === 'present' ? 1 : 0
+            })));
+
+            // Fetch Marks
+            const marks = await marksAPI.getMarks({ studentUsn: usn });
+            setMarksData(marks.map(m => ({
+                subject: m.subject,
+                marks: m.obtainedMarks,
+                total: m.maxMarks
+            })));
+
+            // Update Child Info
+            setChildInfo(prev => ({
+                ...prev,
+                attendance: attReport.stats.percentage,
+                cgpa: (marks.reduce((acc, m) => acc + (m.obtainedMarks / m.maxMarks), 0) / (marks.length || 1) * 10).toFixed(2)
+            }));
+
+        } catch (error) {
+            console.error('Error fetching child data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const attendanceData = [
-        { name: 'Mon', present: 1 },
-        { name: 'Tue', present: 1 },
-        { name: 'Wed', present: 0 }, // Absent
-        { name: 'Thu', present: 1 },
-        { name: 'Fri', present: 1 },
-    ];
-
-    const marksData = [
-        { subject: 'DBMS', marks: 85, total: 100 },
-        { subject: 'OS', marks: 78, total: 100 },
-        { subject: 'CN', marks: 92, total: 100 },
-        { subject: 'AI', marks: 88, total: 100 },
-        { subject: 'Maths', marks: 75, total: 100 },
-    ];
-
-    const feeData = [
-        { name: 'Paid', value: 65000 },
-        { name: 'Pending', value: 45000 },
-    ];
     const COLORS = ['#10b981', '#ef4444'];
 
     return (

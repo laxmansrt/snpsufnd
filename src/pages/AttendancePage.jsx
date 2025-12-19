@@ -16,14 +16,31 @@ const AttendancePage = () => {
     const [saving, setSaving] = useState(false);
     const [report, setReport] = useState(null);
 
-    const classes = ['CSE - Sem 5', 'CSE - Sem 3', 'ISE - Sem 5', 'ECE - Sem 4'];
-    const subjects = [
+    const [classes, setClasses] = useState([]);
+    const [subjects, setSubjects] = useState([
         'Database Management Systems',
         'Operating Systems',
         'Computer Networks',
         'Software Engineering',
         'Web Technologies',
-    ];
+    ]);
+
+    // Load classes on mount
+    useEffect(() => {
+        loadClasses();
+    }, []);
+
+    const loadClasses = async () => {
+        try {
+            const data = await attendanceAPI.getClasses();
+            setClasses(data);
+            if (data.length > 0) {
+                setSelectedClass(data[0]);
+            }
+        } catch (error) {
+            console.error('Error loading classes:', error);
+        }
+    };
 
     // Load students for selected class
     useEffect(() => {
@@ -32,10 +49,11 @@ const AttendancePage = () => {
         }
     }, [selectedClass, activeTab]);
 
-    // Load report for student
+    // Load report for student or parent
     useEffect(() => {
-        if (activeTab === 'view' && user?.studentData?.usn) {
-            loadReport();
+        const usn = user?.role === 'parent' ? user?.parentData?.childUsn : user?.studentData?.usn;
+        if (activeTab === 'view' && usn) {
+            loadReport(usn);
         }
     }, [activeTab]);
 
@@ -59,11 +77,11 @@ const AttendancePage = () => {
         }
     };
 
-    const loadReport = async () => {
+    const loadReport = async (usn) => {
         try {
             setLoading(true);
             const data = await attendanceAPI.getAttendanceReport({
-                studentUsn: user.studentData.usn,
+                studentUsn: usn,
             });
             setReport(data);
         } catch (error) {

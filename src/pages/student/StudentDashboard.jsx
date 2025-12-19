@@ -16,14 +16,7 @@ const StudentDashboard = () => {
     // Mock Data for Weekly Attendance (since real API gives aggregate stats usually, or we'd need complex logic to map daily)
     // For now, we'll keep the weekly chart static or try to map if we fetch daily records.
     // Let's fetch daily records for the current week if possible, otherwise keep mock for the chart but real for the stat card.
-    const [weeklyAttendance, setWeeklyAttendance] = useState([
-        { name: 'Mon', present: 1 },
-        { name: 'Tue', present: 1 },
-        { name: 'Wed', present: 1 },
-        { name: 'Thu', present: 1 },
-        { name: 'Fri', present: 1 },
-        { name: 'Sat', present: 0 },
-    ]);
+    const [weeklyAttendance, setWeeklyAttendance] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,6 +47,13 @@ const StudentDashboard = () => {
                         marks: (m.obtainedMarks / m.maxMarks) * 100 // Normalize to percentage
                     }));
                     setMarksData(chartData);
+
+                    // Weekly Attendance Chart (latest 6 records)
+                    const weekly = attendanceReport.records.slice(0, 6).reverse().map(r => ({
+                        name: new Date(r.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                        present: r.status === 'present' ? 1 : 0
+                    }));
+                    setWeeklyAttendance(weekly);
 
                 } catch (error) {
                     console.error('Error fetching dashboard data:', error);

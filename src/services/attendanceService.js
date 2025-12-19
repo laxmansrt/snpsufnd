@@ -1,12 +1,4 @@
-const API_URL = 'https://snpsubknd.onrender.com/api';
-
-const getAuthHeaders = () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    return {
-        'Content-Type': 'application/json',
-        ...(user?.token && { Authorization: `Bearer ${user.token}` }),
-    };
-};
+import { API_URL, getAuthHeaders } from './config';
 
 export const attendanceAPI = {
     // Mark attendance for multiple students
@@ -50,6 +42,24 @@ export const attendanceAPI = {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || 'Failed to fetch students');
+        return data;
+    },
+
+    getClasses: async () => {
+        const response = await fetch(`${API_URL}/attendance/classes`, {
+            headers: getAuthHeaders(),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch classes');
+        return data;
+    },
+
+    getGlobalStats: async () => {
+        const response = await fetch(`${API_URL}/attendance/stats`, {
+            headers: getAuthHeaders(),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch stats');
         return data;
     },
 };
