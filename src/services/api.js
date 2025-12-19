@@ -33,6 +33,17 @@ export const authAPI = {
         return data;
     },
 
+    bulkRegister: async (usersData) => {
+        const response = await fetch(`${API_URL}/auth/bulk-register`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(usersData),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Bulk registration failed');
+        return data;
+    },
+
     getMe: async () => {
         const response = await fetch(`${API_URL}/auth/me`, {
             headers: getAuthHeaders(),

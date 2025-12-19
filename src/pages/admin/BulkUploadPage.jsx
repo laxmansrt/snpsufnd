@@ -4,6 +4,7 @@ import * as XLSX from 'xlsx';
 import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, X, Save, Download } from 'lucide-react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../../services/api';
 
 const BulkUploadPage = () => {
     const { user, token } = useAuth(); // Assuming token is available in context or we fetch it
@@ -62,23 +63,8 @@ const BulkUploadPage = () => {
             // we will use fetch or the existing api service if possible. 
             // Let's assume we use fetch for now to be self-contained or import api.
 
-            // Better to use the existing API pattern if possible, but for now I'll use fetch with the token from context/localStorage
-            const storedToken = localStorage.getItem('token'); // Fallback
-
-            const response = await fetch('http://localhost:5000/api/auth/bulk-register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${storedToken}`
-                },
-                body: JSON.stringify(previewData)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Upload failed');
-            }
+            // Use authAPI for bulk registration
+            const data = await authAPI.bulkRegister(previewData);
 
             setResults(data);
             setPreviewData([]);
