@@ -60,7 +60,7 @@ const LoginPage = () => {
                 {/* Left Side - Info & Branding */}
                 <div className="md:w-1/2 bg-[#172033] p-12 flex flex-col justify-center text-white relative overflow-hidden">
                     {/* Background decoration */}
-                    <div className="absolute top-0 left-0 w-full h-full bg-[url('/assets/pattern.png')] opacity-5"></div>
+                    <div className="absolute top-0 left-0 w-full h-full bg-black opacity-5"></div>
 
                     <div className="relative z-10">
                         <div className="mb-10">

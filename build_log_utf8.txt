@@ -1,0 +1,62 @@
+﻿
+> sapthagiri-nps-university@0.0.0 build
+> vite build
+
+[36mvite v7.2.4 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 1631 modules transformed.
+node.exe : [31mΓ£ù[39m 
+Build failed in 2.17s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: ([31m  
+  Γ£ù[39m Build failed i   
+ n 2.17s:String) [], Rem    
+oteException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+[31merror during build:
+[31mCould not resolve 
+"../context/AuthContext" 
+from "src/pages/admin/BulkUp
+loadPage.jsx"[31m
+file: [36mC:/Users/kusha/On
+eDrive/Pictures/Documents/De
+sktop/Sapthagiri NPS Univers
+ity/frontend/src/pages/admin
+/BulkUploadPage.jsx[31m
+    at getRollupError (file:
+///C:/Users/kusha/OneDrive/P
+ictures/Documents/Desktop/Sa
+pthagiri%20NPS%20University/
+frontend/node_modules/rollup
+/dist/es/shared/parseAst.js:
+401:41)
+    at error (file:///C:/Use
+rs/kusha/OneDrive/Pictures/D
+ocuments/Desktop/Sapthagiri%
+20NPS%20University/frontend/
+node_modules/rollup/dist/es/
+shared/parseAst.js:397:42)
+    at ModuleLoader.handleIn
+validResolvedId (file:///C:/
+Users/kusha/OneDrive/Picture
+s/Documents/Desktop/Sapthagi
+ri%20NPS%20University/fronte
+nd/node_modules/rollup/dist/
+es/shared/node-entry.js:2159
+0:24)
+    at file:///C:/Users/kush
+a/OneDrive/Pictures/Document
+s/Desktop/Sapthagiri%20NPS%2
+0University/frontend/node_mo
+dules/rollup/dist/es/shared/
+node-entry.js:21550:26[39m

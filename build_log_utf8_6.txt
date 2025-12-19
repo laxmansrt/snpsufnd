@@ -1,0 +1,125 @@
+﻿
+> sapthagiri-nps-university@0.0.0 build
+> vite build
+
+[36mvite v7.2.4 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 2363 modules transformed.
+node.exe : [31mΓ£ù[39m 
+Build failed in 4.85s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: ([31m  
+  Γ£ù[39m Build failed i   
+ n 4.85s:String) [], Rem    
+oteException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+[31merror during build:
+[31msrc/pages/MarksEntryPag
+e.jsx (3:9): 
+"attendanceService" is not 
+exported by "src/services/at
+tendanceService.js", 
+imported by "src/pages/Marks
+EntryPage.jsx".[31m
+file: [36mC:/Users/kusha/On
+eDrive/Pictures/Documents/De
+sktop/Sapthagiri NPS Univers
+ity/frontend/src/pages/Marks
+EntryPage.jsx:3:9[31m
+[33m
+1: import React, { 
+useState, useEffect } from 
+'react';
+2: import { marksAPI } from 
+'../services/marksService';
+3: import { 
+attendanceService } from '..
+/services/attendanceService'
+;
+            ^
+4: import { FileText, 
+Upload, Save, Download, 
+Search, Filter } from 
+'lucide-react';
+[31m
+    at getRollupError (file:
+///C:/Users/kusha/OneDrive/P
+ictures/Documents/Desktop/Sa
+pthagiri%20NPS%20University/
+frontend/node_modules/rollup
+/dist/es/shared/parseAst.js:
+401:41)
+    at error (file:///C:/Use
+rs/kusha/OneDrive/Pictures/D
+ocuments/Desktop/Sapthagiri%
+20NPS%20University/frontend/
+node_modules/rollup/dist/es/
+shared/parseAst.js:397:42)
+    at Module.error (file://
+/C:/Users/kusha/OneDrive/Pic
+tures/Documents/Desktop/Sapt
+hagiri%20NPS%20University/fr
+ontend/node_modules/rollup/d
+ist/es/shared/node-entry.js:
+16956:16)
+    at Module.traceVariable 
+(file:///C:/Users/kusha/OneD
+rive/Pictures/Documents/Desk
+top/Sapthagiri%20NPS%20Unive
+rsity/frontend/node_modules/
+rollup/dist/es/shared/node-e
+ntry.js:17412:29)
+    at 
+ModuleScope.findVariable (fi
+le:///C:/Users/kusha/OneDriv
+e/Pictures/Documents/Desktop
+/Sapthagiri%20NPS%20Universi
+ty/frontend/node_modules/rol
+lup/dist/es/shared/node-entr
+y.js:15076:39)
+    at ReturnValueScope.find
+Variable (file:///C:/Users/k
+usha/OneDrive/Pictures/Docum
+ents/Desktop/Sapthagiri%20NP
+S%20University/frontend/node
+_modules/rollup/dist/es/shar
+ed/node-entry.js:5649:38)
+    at FunctionBodyScope.fin
+dVariable (file:///C:/Users/
+kusha/OneDrive/Pictures/Docu
+ments/Desktop/Sapthagiri%20N
+PS%20University/frontend/nod
+e_modules/rollup/dist/es/sha
+red/node-entry.js:5649:38)
+    at ReturnValueScope.find
+Variable (file:///C:/Users/k
+usha/OneDrive/Pictures/Docum
+ents/Desktop/Sapthagiri%20NP
+S%20University/frontend/node
+_modules/rollup/dist/es/shar
+ed/node-entry.js:5649:38)
+    at FunctionBodyScope.fin
+dVariable (file:///C:/Users/
+kusha/OneDrive/Pictures/Docu
+ments/Desktop/Sapthagiri%20N
+PS%20University/frontend/nod
+e_modules/rollup/dist/es/sha
+red/node-entry.js:5649:38)
+    at 
+BlockScope.findVariable (fil
+e:///C:/Users/kusha/OneDrive
+/Pictures/Documents/Desktop/
+Sapthagiri%20NPS%20Universit
+y/frontend/node_modules/roll
+up/dist/es/shared/node-entry
+.js:5649:38)[39m

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { attendanceService } from '../../services/attendanceService';
+import { attendanceAPI as attendanceService } from '../../services/attendanceService';
 import { marksAPI } from '../../services/marksService';
 import { Users, BookOpen, Calendar, DollarSign, AlertTriangle, TrendingUp, Book } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';

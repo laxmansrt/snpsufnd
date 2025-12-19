@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { marksAPI } from '../services/marksService';
-import { attendanceService } from '../services/attendanceService';
+import { attendanceAPI as attendanceService } from '../services/attendanceService';
 import { FileText, Upload, Save, Download, Search, Filter } from 'lucide-react';
 
 const MarksEntryPage = () => {
