@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Users, DollarSign, BookOpen, UserCheck, TrendingUp, AlertCircle, Plus, Bell, X, MessageSquare, Download } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, IndianRupee, BookOpen, UserCheck, TrendingUp, AlertCircle, Plus, Bell, X, MessageSquare, Download, Upload, Video } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import * as XLSX from 'xlsx';
 import { authAPI, announcementAPI } from '../../services/api';
@@ -144,6 +145,20 @@ const AdminDashboard = () => {
                         <Bell size={18} />
                         <span>Post Notice</span>
                     </button>
+                    <Link
+                        to="/dashboard/admin/bulk-upload"
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    >
+                        <Upload size={18} />
+                        <span>Bulk Upload</span>
+                    </Link>
+                    <Link
+                        to="/dashboard/admin/meetings"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        <Video size={18} />
+                        <span>Meet</span>
+                    </Link>
                 </div>
             </div>
 
@@ -197,7 +212,7 @@ const AdminDashboard = () => {
                             <h3 className="text-3xl font-bold mt-1">₹2.4Cr</h3>
                         </div>
                         <div className="p-2 bg-green-500/20 rounded-lg text-green-400">
-                            <DollarSign size={24} />
+                            <IndianRupee size={24} />
                         </div>
                     </div>
                     <div className="mt-4 flex items-center gap-2 text-sm text-green-400">

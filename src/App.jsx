@@ -8,6 +8,8 @@ import LoginPage from './pages/LoginPage';
 import LostFound from './pages/LostFound';
 import StudentDashboard from './pages/student/StudentDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import BulkUploadPage from './pages/admin/BulkUploadPage';
+import MeetingPage from './pages/admin/MeetingPage';
 import ParentDashboard from './pages/parent/ParentDashboard';
 import FacultyDashboard from './pages/faculty/FacultyDashboard';
 import AttendancePage from './pages/AttendancePage';
@@ -79,6 +81,8 @@ function App() {
             <Route index element={<RoleBasedRedirect />} />
             <Route path="student" element={<StudentDashboard />} />
             <Route path="admin" element={<AdminDashboard />} />
+            <Route path="admin/bulk-upload" element={<BulkUploadPage />} />
+            <Route path="admin/meetings" element={<MeetingPage />} />
             <Route path="parent" element={<ParentDashboard />} />
             <Route path="faculty" element={<FacultyDashboard />} />
             <Route path="lost-found" element={<LostFound />} />

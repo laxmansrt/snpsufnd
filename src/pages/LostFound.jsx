@@ -63,7 +63,7 @@ const LostFound = () => {
             ...formData,
             type: activeTab === 'report-lost' ? 'lost' : 'found',
             user: { name: user.name, role: user.role },
-            image: imagePreview // Include the image preview as base64
+            imageUrl: imagePreview // Include the image preview as base64
         };
         await addItem(newItem);
         setFormData({ title: '', description: '', location: '', contact: user?.email || '', type: 'lost' });
@@ -166,8 +166,8 @@ const LostFound = () => {
                         {filteredItems.map(item => (
                             <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group">
                                 <div className="relative h-48 bg-gray-100">
-                                    {item.image ? (
-                                        <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
+                                    {item.imageUrl ? (
+                                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                             <Tag size={48} />
