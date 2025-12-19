@@ -31,18 +31,20 @@ const BulkUploadPage = () => {
             const normalizedRow = {};
             Object.keys(row).forEach(key => {
                 const normalizedKey = key.trim().toLowerCase();
+                const value = typeof row[key] === 'string' ? row[key].trim() : row[key];
+
                 // Map common variations to standard keys
-                if (normalizedKey === 'student name' || normalizedKey === 'name') normalizedRow.name = row[key];
-                else if (normalizedKey === 'email id' || normalizedKey === 'email') normalizedRow.email = row[key];
-                else if (normalizedKey === 'role') normalizedRow.role = row[key].toLowerCase();
-                else if (normalizedKey === 'password') normalizedRow.password = row[key];
-                else if (normalizedKey === 'usn') normalizedRow.usn = row[key];
-                else if (normalizedKey === 'class') normalizedRow.class = row[key];
-                else if (normalizedKey === 'semester') normalizedRow.semester = row[key];
-                else if (normalizedKey === 'department') normalizedRow.department = row[key];
-                else if (normalizedKey === 'employee id' || normalizedKey === 'employeeid') normalizedRow.employeeId = row[key];
-                else if (normalizedKey === 'designation') normalizedRow.designation = row[key];
-                else normalizedRow[normalizedKey] = row[key]; // Keep other keys as is
+                if (normalizedKey === 'student name' || normalizedKey === 'name') normalizedRow.name = value;
+                else if (normalizedKey === 'email id' || normalizedKey === 'email') normalizedRow.email = value;
+                else if (normalizedKey === 'role') normalizedRow.role = value ? value.toLowerCase() : '';
+                else if (normalizedKey === 'password') normalizedRow.password = value;
+                else if (normalizedKey === 'usn') normalizedRow.usn = value;
+                else if (normalizedKey === 'class') normalizedRow.class = value;
+                else if (normalizedKey === 'semester') normalizedRow.semester = value;
+                else if (normalizedKey === 'department') normalizedRow.department = value;
+                else if (normalizedKey === 'employee id' || normalizedKey === 'employeeid') normalizedRow.employeeId = value;
+                else if (normalizedKey === 'designation') normalizedRow.designation = value;
+                else normalizedRow[normalizedKey] = value; // Keep other keys as is
             });
             return normalizedRow;
         });
