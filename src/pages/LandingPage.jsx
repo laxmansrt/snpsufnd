@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart } from 'lucide-react';
+import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap } from 'lucide-react';
 import campus1 from '../assets/campus1.png';
 import campus2 from '../assets/campus2.png';
 import campus3 from '../assets/campus3.png';
@@ -11,6 +11,7 @@ import campus7 from '../assets/campus7.png';
 import campus8 from '../assets/campus8.png';
 import feature1 from '../assets/feature_section_1.png';
 import feature2 from '../assets/feature_section_2.png';
+import dashboardPreview from '../assets/dashboard_preview.png';
 import AIChat from '../components/AIChat';
 
 const LandingPage = () => {
@@ -23,6 +24,13 @@ const LandingPage = () => {
     });
     const [submitStatus, setSubmitStatus] = useState(null);
     const [currentSlide, setCurrentSlide] = useState(0);
+
+    // AI Features State
+    const [systemHealth, setSystemHealth] = useState({ status: 'Stable', color: 'green' });
+    const [stats, setStats] = useState({ students: 0, faculty: 0, notices: 0, uptime: 0 });
+    const [darkMode, setDarkMode] = useState(false);
+    const [dailyTip, setDailyTip] = useState('');
+
     const campusImages = [
         campus1,
         campus2,
@@ -34,11 +42,50 @@ const LandingPage = () => {
         campus8
     ];
 
+    // Campus carousel
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % campusImages.length);
         }, 3000);
         return () => clearInterval(timer);
+    }, []);
+
+    // Animated counter for stats
+    useEffect(() => {
+        const targetStats = { students: 2847, faculty: 156, notices: 12, uptime: 99.9 };
+        const duration = 2000;
+        const steps = 60;
+        const interval = duration / steps;
+
+        let currentStep = 0;
+        const timer = setInterval(() => {
+            currentStep++;
+            const progress = currentStep / steps;
+
+            setStats({
+                students: Math.floor(targetStats.students * progress),
+                faculty: Math.floor(targetStats.faculty * progress),
+                notices: Math.floor(targetStats.notices * progress),
+                uptime: (targetStats.uptime * progress).toFixed(1)
+            });
+
+            if (currentStep >= steps) clearInterval(timer);
+        }, interval);
+
+        return () => clearInterval(timer);
+    }, []);
+
+    // Daily AI tip
+    useEffect(() => {
+        const tips = [
+            "💡 Pro tip: Check your attendance regularly to stay on track!",
+            "🎯 Success is the sum of small efforts repeated daily.",
+            "📚 Knowledge is power. Keep learning, keep growing!",
+            "⚡ Your portal is AI-protected and optimized for speed.",
+            "🌟 Excellence is not a skill, it's an attitude."
+        ];
+        const today = new Date().getDate();
+        setDailyTip(tips[today % tips.length]);
     }, []);
 
     const handleSubmit = (e) => {
@@ -90,6 +137,27 @@ const LandingPage = () => {
 
     return (
         <div className="min-h-screen bg-[#0a1628]">
+            {/* System Health Badge - Floating */}
+            <div className="fixed top-20 right-6 z-50 animate-fade-in">
+                <div className="px-4 py-2 rounded-full backdrop-blur-md bg-gray-900/80 border border-gray-700 shadow-lg flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${systemHealth.status === 'Stable' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
+                        }`}></div>
+                    <span className="text-xs font-medium text-gray-300">
+                        System: {systemHealth.status}
+                    </span>
+                    <Shield size={14} className="text-[#d4af37]" />
+                </div>
+            </div>
+
+            {/* Dark Mode Toggle */}
+            <button
+                onClick={() => setDarkMode(!darkMode)}
+                className="fixed top-20 left-6 z-50 p-3 rounded-full bg-[#d4af37] hover:bg-[#c5a028] transition-all shadow-lg hover:scale-110"
+                title="Toggle Dark/Light Mode"
+            >
+                {darkMode ? <Sun size={20} className="text-[#0a1628]" /> : <Moon size={20} className="text-[#0a1628]" />}
+            </button>
+
             {/* Hero Section */}
             <section className="relative min-h-screen flex items-center overflow-hidden">
                 {/* Animated Background */}
@@ -135,6 +203,19 @@ const LandingPage = () => {
                                 Join a legacy of excellence at one of India's premier universities. Experience world-class education, cutting-edge research, and industry-ready skills.
                             </p>
 
+                            {/* AI Welcome Message */}
+                            <div className="p-4 rounded-xl bg-gray-800/50 border-gray-700 border backdrop-blur-sm flex items-start gap-3 animate-bounce-subtle">
+                                <MessageCircle className="text-[#d4af37] mt-1 flex-shrink-0" size={20} />
+                                <div>
+                                    <p className="font-medium text-white">
+                                        Hi 👋 I'm your AI Assistant
+                                    </p>
+                                    <p className="text-sm text-gray-400 mt-1">
+                                        I can help you find results, notices, admissions info, and more!
+                                    </p>
+                                </div>
+                            </div>
+
                             {/* Buttons */}
                             <div className="flex flex-wrap gap-4">
                                 <Link
@@ -150,25 +231,43 @@ const LandingPage = () => {
                                 </button>
                             </div>
 
-                            {/* Stats */}
-                            <div className="grid grid-cols-3 gap-8 pt-8">
-                                <div>
-                                    <div className="text-3xl md:text-4xl font-bold text-white mb-1">
-                                        20K<span className="text-[#d4af37]">+</span>
+                            {/* Daily Tip */}
+                            <div className="p-3 rounded-lg bg-blue-500/10 border-blue-500/30 border flex items-center gap-2">
+                                <Sparkles size={16} className="text-blue-500" />
+                                <p className="text-sm text-blue-300">
+                                    {dailyTip}
+                                </p>
+                            </div>
+
+                            {/* Live Stats - Animated */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-8">
+                                <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700 hover:scale-105 transition-transform">
+                                    <Users className="text-[#d4af37] mb-2" size={24} />
+                                    <div className="text-2xl md:text-3xl font-bold text-white">
+                                        {stats.students.toLocaleString()}
                                     </div>
-                                    <div className="text-gray-400 text-sm">Students</div>
+                                    <div className="text-gray-400 text-xs mt-1">Active Students</div>
                                 </div>
-                                <div>
-                                    <div className="text-3xl md:text-4xl font-bold text-white mb-1">
-                                        500<span className="text-[#d4af37]">+</span>
+                                <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700 hover:scale-105 transition-transform">
+                                    <GraduationCap className="text-blue-500 mb-2" size={24} />
+                                    <div className="text-2xl md:text-3xl font-bold text-white">
+                                        {stats.faculty}
                                     </div>
-                                    <div className="text-gray-400 text-sm">Faculty</div>
+                                    <div className="text-gray-400 text-xs mt-1">Faculty Members</div>
                                 </div>
-                                <div>
-                                    <div className="text-3xl md:text-4xl font-bold text-white mb-1">
-                                        98<span className="text-[#d4af37]">%</span>
+                                <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700 hover:scale-105 transition-transform">
+                                    <Bell className="text-green-500 mb-2" size={24} />
+                                    <div className="text-2xl md:text-3xl font-bold text-white">
+                                        {stats.notices}
                                     </div>
-                                    <div className="text-gray-400 text-sm">Placements</div>
+                                    <div className="text-gray-400 text-xs mt-1">Notices Today</div>
+                                </div>
+                                <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700 hover:scale-105 transition-transform">
+                                    <Activity className="text-purple-500 mb-2" size={24} />
+                                    <div className="text-2xl md:text-3xl font-bold text-white">
+                                        {stats.uptime}%
+                                    </div>
+                                    <div className="text-gray-400 text-xs mt-1">System Uptime</div>
                                 </div>
                             </div>
                         </div>
@@ -177,7 +276,7 @@ const LandingPage = () => {
                         <div className="relative hidden lg:block">
                             {/* Main Building Image */}
                             <div className="relative">
-                                <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-to-br from-[#d4af37]/20 to-blue-600/20 rounded-3xl blur-xl"></div>
+                                <div className="absolute -top-4 -right-4 w-full h-full bg-gradient-to-br from-[#d4af37]/10 to-blue-600/10 rounded-3xl blur-xl"></div>
                                 <div className="relative bg-gradient-to-br from-[#1a2942] to-[#0f1d35] p-4 rounded-3xl border border-white/10 shadow-2xl">
                                     <div className="aspect-[4/3] bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl overflow-hidden">
                                         <img
@@ -199,19 +298,19 @@ const LandingPage = () => {
                                 </div>
                             </div>
 
-                            {/* Premium Facilities Card */}
+                            {/* Dashboard Preview Card */}
                             <div className="absolute -bottom-32 -left-16 bg-gradient-to-br from-[#1a2942] to-[#0f1d35] p-4 rounded-3xl border border-white/10 shadow-2xl max-w-sm">
                                 <div className="aspect-video bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl overflow-hidden mb-3">
                                     <img
-                                        src={campus2}
-                                        alt="Facilities"
+                                        src={dashboardPreview}
+                                        alt="Dashboard Preview"
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <div className="text-white font-bold">Premium Facilities</div>
-                                        <div className="text-[#d4af37] text-sm font-semibold">500+ Seats</div>
+                                        <div className="text-white font-bold">Smart Dashboard</div>
+                                        <div className="text-[#d4af37] text-sm font-semibold">AI-Powered Portal</div>
                                     </div>
                                 </div>
                             </div>
@@ -475,6 +574,23 @@ const LandingPage = () => {
                 </div>
             </section>
             <AIChat />
+
+            <style jsx>{`
+                @keyframes fade-in {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                @keyframes bounce-subtle {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-5px); }
+                }
+                .animate-fade-in {
+                    animation: fade-in 1s ease-out;
+                }
+                .animate-bounce-subtle {
+                    animation: bounce-subtle 3s ease-in-out infinite;
+                }
+            `}</style>
         </div>
     );
 };
