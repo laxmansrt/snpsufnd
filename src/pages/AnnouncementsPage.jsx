@@ -26,6 +26,7 @@ const AnnouncementsPage = () => {
         { id: 'exam', label: 'Exam', color: 'red' },
         { id: 'general', label: 'General', color: 'green' },
         { id: 'urgent', label: 'Urgent', color: 'orange' },
+        { id: 'video', label: 'Video Conference', color: 'yellow' },
     ];
 
     useEffect(() => {
@@ -262,6 +263,7 @@ const AnnouncementsPage = () => {
                                         <option value="event">Event</option>
                                         <option value="exam">Exam</option>
                                         <option value="urgent">Urgent</option>
+                                        <option value="video">Video Conference</option>
                                     </select>
                                 </div>
 

@@ -528,7 +528,9 @@ const AdminDashboard = () => {
                                         <option value="general">General</option>
                                         <option value="academic">Academic</option>
                                         <option value="event">Event</option>
-                                        <option value="emergency">Emergency</option>
+                                        <option value="exam">Exam</option>
+                                        <option value="urgent">Urgent</option>
+                                        <option value="video">Video Conference</option>
                                     </select>
                                 </div>
                                 <div>
