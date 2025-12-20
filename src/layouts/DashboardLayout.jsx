@@ -70,6 +70,7 @@ const DashboardLayout = () => {
 
         const parent = [
             { icon: Users, label: 'Child Progress', path: '/dashboard/child' },
+            { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
             { icon: DollarSign, label: 'Fee Payment', path: '/dashboard/fees' },
             { icon: Bus, label: 'Bus Tracking', path: '/dashboard/transport' },
             { icon: Bell, label: 'Messages', path: '/dashboard/messages' },
@@ -79,7 +80,14 @@ const DashboardLayout = () => {
             case 'admin': return [...common, ...admin];
             case 'faculty': return [...common, ...faculty];
             case 'student': return [...common, ...student];
-            case 'parent': return [...common, ...parent];
+            case 'parent': return [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
+                { icon: Users, label: 'Child Progress', path: '/dashboard/child' },
+                { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
+                { icon: DollarSign, label: 'Fee Payment', path: '/dashboard/fees' },
+                { icon: Bus, label: 'Bus Tracking', path: '/dashboard/transport' },
+                { icon: Bell, label: 'Messages', path: '/dashboard/messages' },
+            ];
             default: return common;
         }
     };

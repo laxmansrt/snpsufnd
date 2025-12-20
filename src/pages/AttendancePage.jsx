@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { attendanceAPI } from '../services/attendanceService';
 import { Calendar, Users, CheckCircle, XCircle, Clock, AlertCircle, Save, Download } from 'lucide-react';
 import clsx from 'clsx';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const AttendancePage = () => {
     const { user } = useAuth();
@@ -104,19 +105,17 @@ const AttendancePage = () => {
     const handleSaveAttendance = async () => {
         try {
             setSaving(true);
-
-            const attendanceData = students.map(student => ({
-                studentUsn: student.studentData.usn,
-                studentName: student.name,
-                status: attendance[student.studentData.usn] || 'present',
+            const attendanceData = Object.keys(attendance).map(usn => ({
+                studentUsn: usn,
+                status: attendance[usn],
             }));
 
-            await attendanceAPI.markAttendance(
-                selectedClass,
-                selectedSubject,
-                selectedDate,
-                attendanceData
-            );
+            await attendanceAPI.markAttendance({
+                class: selectedClass,
+                subject: selectedSubject,
+                date: selectedDate,
+                attendance: attendanceData,
+            });
 
             alert('Attendance marked successfully!');
         } catch (error) {
@@ -127,256 +126,232 @@ const AttendancePage = () => {
         }
     };
 
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'present':
-                return <CheckCircle className="text-green-500" size={20} />;
-            case 'absent':
-                return <XCircle className="text-red-500" size={20} />;
-            case 'late':
-                return <Clock className="text-yellow-500" size={20} />;
-            case 'excused':
-                return <AlertCircle className="text-blue-500" size={20} />;
-            default:
-                return null;
-        }
-    };
-
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'present':
-                return 'bg-green-500/20 border-green-500 text-green-400';
-            case 'absent':
-                return 'bg-red-500/20 border-red-500 text-red-400';
-            case 'late':
-                return 'bg-yellow-500/20 border-yellow-500 text-yellow-400';
-            case 'excused':
-                return 'bg-blue-500/20 border-blue-500 text-blue-400';
-            default:
-                return 'bg-gray-800 border-gray-700 text-gray-400';
-        }
-    };
-
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Attendance Management</h1>
-                    <p className="text-gray-400">Track and manage student attendance</p>
+                    <h1 className="text-3xl font-bold text-white">
+                        {user?.role === 'parent' ? "Child's Attendance" : "Attendance Management"}
+                    </h1>
+                    <p className="text-gray-400">
+                        {user?.role === 'parent' ? "Monitor your child's daily attendance records." : "Track and manage student attendance across classes."}
+                    </p>
                 </div>
-                <div className="flex items-center gap-2 text-gray-400">
-                    <Calendar size={20} />
-                    <span>{new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                </div>
-            </div>
-
-            {/* Tabs */}
-            {(user?.role === 'faculty' || user?.role === 'admin') && (
-                <div className="flex gap-2 bg-gray-800 p-1 rounded-lg w-fit">
-                    <button
-                        onClick={() => setActiveTab('mark')}
-                        className={clsx(
-                            'px-6 py-2 rounded-md font-medium transition-all',
-                            activeTab === 'mark'
-                                ? 'bg-[#d4af37] text-[#111827]'
-                                : 'text-gray-400 hover:text-white'
-                        )}
-                    >
-                        Mark Attendance
-                    </button>
+                <div className="flex gap-2 bg-gray-800 p-1 rounded-lg">
+                    {(user?.role === 'faculty' || user?.role === 'admin') && (
+                        <button
+                            onClick={() => setActiveTab('mark')}
+                            className={clsx(
+                                "px-4 py-2 rounded-md text-sm font-medium transition-all",
+                                activeTab === 'mark' ? "bg-[#d4af37] text-[#111827]" : "text-gray-400 hover:text-white"
+                            )}
+                        >
+                            Mark Attendance
+                        </button>
+                    )}
                     <button
                         onClick={() => setActiveTab('view')}
                         className={clsx(
-                            'px-6 py-2 rounded-md font-medium transition-all',
-                            activeTab === 'view'
-                                ? 'bg-[#d4af37] text-[#111827]'
-                                : 'text-gray-400 hover:text-white'
+                            "px-4 py-2 rounded-md text-sm font-medium transition-all",
+                            activeTab === 'view' ? "bg-[#d4af37] text-[#111827]" : "text-gray-400 hover:text-white"
                         )}
                     >
                         View Reports
                     </button>
                 </div>
-            )}
+            </div>
 
-            {/* Mark Attendance Tab */}
-            {activeTab === 'mark' && (user?.role === 'faculty' || user?.role === 'admin') && (
-                <div className="space-y-6">
-                    {/* Filters */}
-                    <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Date</label>
-                                <input
-                                    type="date"
-                                    value={selectedDate}
-                                    onChange={(e) => setSelectedDate(e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Class</label>
-                                <select
-                                    value={selectedClass}
-                                    onChange={(e) => setSelectedClass(e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
-                                >
-                                    {classes.map(cls => (
-                                        <option key={cls} value={cls}>{cls}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Subject</label>
-                                <select
-                                    value={selectedSubject}
-                                    onChange={(e) => setSelectedSubject(e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
-                                >
-                                    {subjects.map(sub => (
-                                        <option key={sub} value={sub}>{sub}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Student List */}
-                    {loading ? (
-                        <div className="text-center py-12 text-gray-400">Loading students...</div>
-                    ) : students.length === 0 ? (
-                        <div className="text-center py-12 text-gray-400">
-                            <Users size={48} className="mx-auto mb-4 opacity-50" />
-                            <p>No students found for this class</p>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead className="bg-gray-900">
-                                            <tr>
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">USN</th>
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Student Name</th>
-                                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Attendance Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-700">
-                                            {students.map((student) => (
-                                                <tr key={student._id} className="hover:bg-gray-700/50 transition-colors">
-                                                    <td className="px-6 py-4 text-sm text-gray-300 font-mono">
-                                                        {student.studentData.usn}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-white font-medium">
-                                                        {student.name}
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex justify-center gap-2">
-                                                            {['present', 'absent', 'late', 'excused'].map((status) => (
-                                                                <button
-                                                                    key={status}
-                                                                    onClick={() => handleMarkAttendance(student.studentData.usn, status)}
-                                                                    className={clsx(
-                                                                        'px-4 py-2 rounded-lg border-2 font-medium capitalize text-sm transition-all',
-                                                                        attendance[student.studentData.usn] === status
-                                                                            ? getStatusColor(status)
-                                                                            : 'bg-gray-900 border-gray-700 text-gray-500 hover:border-gray-600'
-                                                                    )}
-                                                                >
-                                                                    {status}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+            {activeTab === 'mark' ? (
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    {/* Controls */}
+                    <div className="lg:col-span-1 space-y-6">
+                        <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg">
+                            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                                <Calendar className="text-[#d4af37]" size={20} />
+                                Session Details
+                            </h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Date</label>
+                                    <input
+                                        type="date"
+                                        value={selectedDate}
+                                        onChange={(e) => setSelectedDate(e.target.value)}
+                                        className="w-full p-2.5 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                    />
                                 </div>
-                            </div>
-
-                            {/* Save Button */}
-                            <div className="flex justify-end">
-                                <button
-                                    onClick={handleSaveAttendance}
-                                    disabled={saving}
-                                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#d4af37] hover:bg-[#c5a028] text-[#111827] font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    <Save size={20} />
-                                    {saving ? 'Saving...' : 'Save Attendance'}
-                                </button>
-                            </div>
-                        </>
-                    )}
-                </div>
-            )}
-
-            {/* View Reports Tab */}
-            {activeTab === 'view' && (
-                <div className="space-y-6">
-                    {/* Class Selector for Faculty/Admin in View Mode */}
-                    {(user?.role === 'faculty' || user?.role === 'admin') && (
-                        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-                            <div className="flex flex-col md:flex-row md:items-center gap-4">
-                                <div className="flex-1">
-                                    <label className="block text-sm font-medium text-gray-300 mb-2">Select Class to View Report</label>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Class</label>
                                     <select
                                         value={selectedClass}
                                         onChange={(e) => setSelectedClass(e.target.value)}
-                                        className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                        className="w-full p-2.5 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
                                     >
-                                        {classes.map(cls => (
-                                            <option key={cls} value={cls}>{cls}</option>
-                                        ))}
+                                        {classes.map(c => <option key={c} value={c}>{c}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Subject</label>
+                                    <select
+                                        value={selectedSubject}
+                                        onChange={(e) => setSelectedSubject(e.target.value)}
+                                        className="w-full p-2.5 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                    >
+                                        {subjects.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
                                 </div>
                             </div>
                         </div>
-                    )}
 
-                    {loading ? (
-                        <div className="text-center py-12 text-gray-400">Loading report...</div>
-                    ) : report ? (
-                        <>
-                            {/* Statistics Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div className="bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 rounded-xl p-6">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-green-400 text-sm font-medium">Present</span>
-                                        <CheckCircle className="text-green-500" size={24} />
-                                    </div>
-                                    <div className="text-3xl font-bold text-white">{report.stats.present}</div>
-                                </div>
+                        <button
+                            onClick={handleSaveAttendance}
+                            disabled={saving || students.length === 0}
+                            className="w-full py-3 bg-[#d4af37] hover:bg-[#c5a028] text-[#111827] font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {saving ? <LoadingSpinner size="sm" color="white" /> : <Save size={20} />}
+                            {saving ? 'Saving...' : 'Save Attendance'}
+                        </button>
+                    </div>
 
-                                <div className="bg-gradient-to-br from-red-500/20 to-red-600/10 border border-red-500/30 rounded-xl p-6">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-red-400 text-sm font-medium">Absent</span>
-                                        <XCircle className="text-red-500" size={24} />
-                                    </div>
-                                    <div className="text-3xl font-bold text-white">{report.stats.absent}</div>
-                                </div>
-
-                                <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/10 border border-yellow-500/30 rounded-xl p-6">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-yellow-400 text-sm font-medium">Late</span>
-                                        <Clock className="text-yellow-500" size={24} />
-                                    </div>
-                                    <div className="text-3xl font-bold text-white">{report.stats.late}</div>
-                                </div>
-
-                                <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 rounded-xl p-6">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <span className="text-blue-400 text-sm font-medium">Percentage</span>
-                                        <Users className="text-blue-500" size={24} />
-                                    </div>
-                                    <div className="text-3xl font-bold text-white">{report.stats.percentage}%</div>
+                    {/* Student List */}
+                    <div className="lg:col-span-3">
+                        <div className="bg-[#1e293b] rounded-xl border border-gray-700 shadow-lg overflow-hidden">
+                            <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+                                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <Users className="text-[#d4af37]" size={20} />
+                                    Students ({students.length})
+                                </h3>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            const allPresent = {};
+                                            students.forEach(s => allPresent[s.studentData.usn] = 'present');
+                                            setAttendance(allPresent);
+                                        }}
+                                        className="text-xs font-medium text-green-400 hover:text-green-300"
+                                    >
+                                        Mark All Present
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Attendance History */}
-                            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-                                <div className="p-6 border-b border-gray-700">
-                                    <h3 className="text-xl font-bold text-white">Attendance History</h3>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-gray-900">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">Student</th>
+                                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-300">USN</th>
+                                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-300">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-700">
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan="3" className="px-6 py-12 text-center">
+                                                    <LoadingSpinner size="lg" className="mx-auto" />
+                                                    <p className="mt-4 text-gray-400">Loading student list...</p>
+                                                </td>
+                                            </tr>
+                                        ) : students.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="3" className="px-6 py-12 text-center text-gray-400">
+                                                    No students found for the selected class.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            students.map((student) => (
+                                                <tr key={student._id} className="hover:bg-gray-800/50 transition-colors">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-[#d4af37]/20 flex items-center justify-center text-[#d4af37] font-bold">
+                                                                {student.name.charAt(0)}
+                                                            </div>
+                                                            <span className="text-white font-medium">{student.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-400">
+                                                        {student.studentData.usn}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex justify-center gap-2">
+                                                            <button
+                                                                onClick={() => handleMarkAttendance(student.studentData.usn, 'present')}
+                                                                className={clsx(
+                                                                    "px-3 py-1 rounded-lg text-xs font-bold transition-all",
+                                                                    attendance[student.studentData.usn] === 'present'
+                                                                        ? "bg-green-500 text-white shadow-lg shadow-green-900/20"
+                                                                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                                                                )}
+                                                            >
+                                                                Present
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleMarkAttendance(student.studentData.usn, 'absent')}
+                                                                className={clsx(
+                                                                    "px-3 py-1 rounded-lg text-xs font-bold transition-all",
+                                                                    attendance[student.studentData.usn] === 'absent'
+                                                                        ? "bg-red-500 text-white shadow-lg shadow-red-900/20"
+                                                                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                                                                )}
+                                                            >
+                                                                Absent
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    {/* View Reports Tab */}
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-20">
+                            <LoadingSpinner size="xl" />
+                            <p className="mt-4 text-gray-400">Generating report...</p>
+                        </div>
+                    ) : report ? (
+                        <div className="space-y-6">
+                            {/* Stats Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg">
+                                    <p className="text-gray-400 text-sm">Overall Percentage</p>
+                                    <h3 className="text-3xl font-bold text-white mt-1">{report.stats.percentage}%</h3>
+                                    <div className="mt-2 w-full bg-gray-700 rounded-full h-1.5">
+                                        <div
+                                            className="bg-[#d4af37] h-1.5 rounded-full"
+                                            style={{ width: `${report.stats.percentage}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                                <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg">
+                                    <p className="text-gray-400 text-sm">Total Classes</p>
+                                    <h3 className="text-3xl font-bold text-white mt-1">{report.stats.total}</h3>
+                                </div>
+                                <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg">
+                                    <p className="text-gray-400 text-sm">Present</p>
+                                    <h3 className="text-3xl font-bold text-green-400 mt-1">{report.stats.present}</h3>
+                                </div>
+                                <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg">
+                                    <p className="text-gray-400 text-sm">Absent</p>
+                                    <h3 className="text-3xl font-bold text-red-400 mt-1">{report.stats.absent}</h3>
+                                </div>
+                            </div>
+
+                            {/* Detailed Logs */}
+                            <div className="bg-[#1e293b] rounded-xl border border-gray-700 shadow-lg overflow-hidden">
+                                <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+                                    <h3 className="text-lg font-bold text-white">Attendance Logs</h3>
+                                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                                        <Download size={16} />
+                                        Export Report
+                                    </button>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full">
@@ -388,23 +363,24 @@ const AttendancePage = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-700">
-                                            {report.records.map((record) => (
-                                                <tr key={record._id} className="hover:bg-gray-700/50 transition-colors">
-                                                    <td className="px-6 py-4 text-sm text-gray-300">
+                                            {report.records.map((record, index) => (
+                                                <tr key={index} className="hover:bg-gray-800/50 transition-colors">
+                                                    <td className="px-6 py-4 text-sm text-gray-400">
                                                         {new Date(record.date).toLocaleDateString()}
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm text-white">
+                                                    <td className="px-6 py-4 text-sm text-white font-medium">
                                                         {record.subject}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex justify-center items-center gap-2">
-                                                            {getStatusIcon(record.status)}
+                                                            {record.status === 'present' ? (
+                                                                <CheckCircle className="text-green-500" size={18} />
+                                                            ) : (
+                                                                <XCircle className="text-red-500" size={18} />
+                                                            )}
                                                             <span className={clsx(
-                                                                'capitalize font-medium',
-                                                                record.status === 'present' && 'text-green-400',
-                                                                record.status === 'absent' && 'text-red-400',
-                                                                record.status === 'late' && 'text-yellow-400',
-                                                                record.status === 'excused' && 'text-blue-400'
+                                                                "text-sm font-medium capitalize",
+                                                                record.status === 'present' ? "text-green-400" : "text-red-400"
                                                             )}>
                                                                 {record.status}
                                                             </span>
@@ -416,9 +392,13 @@ const AttendancePage = () => {
                                     </table>
                                 </div>
                             </div>
-                        </>
+                        </div>
                     ) : (
-                        <div className="text-center py-12 text-gray-400">No attendance records found</div>
+                        <div className="bg-[#1e293b] p-12 rounded-xl border border-gray-700 text-center">
+                            <AlertCircle className="mx-auto text-gray-500 mb-4" size={48} />
+                            <h3 className="text-xl font-bold text-white mb-2">No Records Found</h3>
+                            <p className="text-gray-400">Select a class or student to view attendance reports.</p>
+                        </div>
                     )}
                 </div>
             )}

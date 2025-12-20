@@ -5,9 +5,10 @@ import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, X, Save, Download } 
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../../services/api';
+import LoadingSpinner, { LoadingOverlay } from '../../components/LoadingSpinner';
 
 const BulkUploadPage = () => {
-    const { user, token } = useAuth(); // Assuming token is available in context or we fetch it
+    const { user, token } = useAuth();
     const navigate = useNavigate();
     const [file, setFile] = useState(null);
     const [previewData, setPreviewData] = useState([]);
@@ -33,7 +34,6 @@ const BulkUploadPage = () => {
                 const normalizedKey = key.trim().toLowerCase();
                 const value = typeof row[key] === 'string' ? row[key].trim() : row[key];
 
-                // Map common variations to standard keys
                 if (normalizedKey === 'student name' || normalizedKey === 'name') normalizedRow.name = value;
                 else if (normalizedKey === 'email id' || normalizedKey === 'email') normalizedRow.email = value;
                 else if (normalizedKey === 'role') normalizedRow.role = value ? value.toLowerCase() : '';
@@ -44,7 +44,9 @@ const BulkUploadPage = () => {
                 else if (normalizedKey === 'department') normalizedRow.department = value;
                 else if (normalizedKey === 'employee id' || normalizedKey === 'employeeid') normalizedRow.employeeId = value;
                 else if (normalizedKey === 'designation') normalizedRow.designation = value;
-                else normalizedRow[normalizedKey] = value; // Keep other keys as is
+                else if (normalizedKey === 'child usn' || normalizedKey === 'childusn') normalizedRow.childUsn = value;
+                else if (normalizedKey === 'child name' || normalizedKey === 'childname') normalizedRow.childName = value;
+                else normalizedRow[normalizedKey] = value;
             });
             return normalizedRow;
         });
@@ -79,18 +81,7 @@ const BulkUploadPage = () => {
         setError(null);
 
         try {
-            // Transform data if necessary to match backend expectations
-            // The backend expects: { name, email, role, ...roleData }
-            // We assume the Excel columns match these keys.
-
-            // We need to make sure we send the token. 
-            // Since we don't have direct access to axios instance here easily without importing api service,
-            // we will use fetch or the existing api service if possible. 
-            // Let's assume we use fetch for now to be self-contained or import api.
-
-            // Use authAPI for bulk registration
             const data = await authAPI.bulkRegister(previewData);
-
             setResults(data);
             setPreviewData([]);
             setFile(null);
@@ -121,6 +112,14 @@ const BulkUploadPage = () => {
                 employeeId: 'FAC001',
                 designation: 'Professor',
                 department: 'CSE'
+            },
+            {
+                name: 'Parent Name',
+                email: 'parent@example.com',
+                role: 'parent',
+                password: 'password123',
+                childUsn: '1SI23CS001',
+                childName: 'Student Name'
             }
         ];
         const ws = XLSX.utils.json_to_sheet(template);
@@ -131,6 +130,8 @@ const BulkUploadPage = () => {
 
     return (
         <div className="max-w-6xl mx-auto space-y-6">
+            {uploading && <LoadingOverlay message={`Uploading ${previewData.length} records...`} />}
+
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-[hsl(var(--primary))] font-serif">Bulk User Upload</h1>
@@ -175,7 +176,10 @@ const BulkUploadPage = () => {
                         className="w-full md:w-auto flex items-center justify-center gap-2 px-6 py-2 bg-[hsl(var(--primary))] text-white rounded-lg hover:bg-[hsl(var(--primary))/0.9] transition-colors disabled:opacity-50"
                     >
                         {uploading ? (
-                            <>Uploading...</>
+                            <>
+                                <LoadingSpinner size="sm" color="white" />
+                                <span>Uploading...</span>
+                            </>
                         ) : (
                             <>
                                 <Save size={20} />
@@ -270,9 +274,18 @@ const BulkUploadPage = () => {
 
             {!file && !results && (
                 <div className="text-center py-20 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                    <Upload className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900">No file selected</h3>
-                    <p className="text-gray-500 mt-1">Upload an Excel or CSV file to get started</p>
+                    {loading ? (
+                        <div className="flex flex-col items-center">
+                            <LoadingSpinner size="lg" />
+                            <p className="mt-4 text-gray-500">Parsing file...</p>
+                        </div>
+                    ) : (
+                        <>
+                            <Upload className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900">No file selected</h3>
+                            <p className="text-gray-500 mt-1">Upload an Excel or CSV file to get started</p>
+                        </>
+                    )}
                 </div>
             )}
         </div>

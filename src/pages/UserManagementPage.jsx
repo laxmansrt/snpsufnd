@@ -17,6 +17,7 @@ const UserManagementPage = () => {
     const tabs = [
         { id: 'students', label: 'Students' },
         { id: 'faculty', label: 'Faculty' },
+        { id: 'parents', label: 'Parents' },
         { id: 'staff', label: 'Staff' },
     ];
 
@@ -46,6 +47,14 @@ const UserManagementPage = () => {
                     employeeId: u.facultyData?.employeeId || 'N/A',
                     department: u.facultyData?.department || 'N/A',
                     designation: u.facultyData?.designation || 'N/A',
+                    status: 'Active'
+                })),
+                parents: allUsers.filter(u => u.role === 'parent').map(u => ({
+                    id: u._id,
+                    name: u.name,
+                    email: u.email,
+                    childUsn: u.parentData?.childUsn || 'N/A',
+                    childName: u.parentData?.childName || 'N/A',
                     status: 'Active'
                 })),
                 staff: allUsers.filter(u => u.role === 'staff' || u.role === 'admin').map(u => ({
@@ -185,11 +194,13 @@ const UserManagementPage = () => {
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase">Name</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase">Email</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase">
-                                    {activeTab === 'students' ? 'USN' : 'Employee ID'}
+                                    {activeTab === 'students' ? 'USN' : activeTab === 'parents' ? 'Child USN' : 'Employee ID'}
                                 </th>
-                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase">Department</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase">
-                                    {activeTab === 'students' ? 'Semester' : 'Designation'}
+                                    {activeTab === 'parents' ? 'Child Name' : 'Department'}
+                                </th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase">
+                                    {activeTab === 'students' ? 'Semester' : activeTab === 'parents' ? 'Role' : 'Designation'}
                                 </th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase">Status</th>
                                 <th className="px-6 py-4 text-right text-xs font-semibold text-gray-400 uppercase">Actions</th>
@@ -208,11 +219,13 @@ const UserManagementPage = () => {
                                     </td>
                                     <td className="px-6 py-4 text-gray-300">{user.email}</td>
                                     <td className="px-6 py-4 text-gray-300">
-                                        {activeTab === 'students' ? user.usn : user.employeeId}
+                                        {activeTab === 'students' ? user.usn : activeTab === 'parents' ? user.childUsn : user.employeeId}
                                     </td>
-                                    <td className="px-6 py-4 text-gray-300">{user.department}</td>
                                     <td className="px-6 py-4 text-gray-300">
-                                        {activeTab === 'students' ? user.semester : user.designation}
+                                        {activeTab === 'parents' ? user.childName : user.department}
+                                    </td>
+                                    <td className="px-6 py-4 text-gray-300">
+                                        {activeTab === 'students' ? user.semester : activeTab === 'parents' ? 'Parent' : user.designation}
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${user.status === 'Active'

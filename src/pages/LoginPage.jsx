@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Check, User, Lock, Phone, X, MessageCircle } from 'lucide-react';
 import clsx from 'clsx';
+import LoadingSpinner, { LoadingOverlay } from '../components/LoadingSpinner';
 
 const LoginPage = () => {
     const { login } = useAuth();
@@ -27,15 +28,20 @@ const LoginPage = () => {
         e.preventDefault();
         setLoading(true);
 
-        const success = await login(selectedRole, {
-            email: formData.username,
-            password: formData.password
-        });
+        try {
+            const success = await login(selectedRole, {
+                email: formData.username,
+                password: formData.password
+            });
 
-        if (success) {
-            navigate('/dashboard');
+            if (success) {
+                navigate('/dashboard');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const roles = [
@@ -55,6 +61,8 @@ const LoginPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#0f172a] p-4">
+            {loading && <LoadingOverlay message="Authenticating..." />}
+
             <div className="w-full max-w-6xl bg-[#1e293b] rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[700px]">
 
                 {/* Left Side - Info & Branding */}
@@ -191,9 +199,14 @@ const LoginPage = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-3.5 rounded-lg bg-[#d4af37] hover:bg-[#c5a028] text-[#1e293b] font-bold text-lg shadow-lg shadow-amber-900/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-3.5 rounded-lg bg-[#d4af37] hover:bg-[#c5a028] text-[#1e293b] font-bold text-lg shadow-lg shadow-amber-900/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                             >
-                                {loading ? 'Signing In...' : 'Sign In'}
+                                {loading ? (
+                                    <>
+                                        <LoadingSpinner size="sm" color="white" />
+                                        <span>Signing In...</span>
+                                    </>
+                                ) : 'Sign In'}
                             </button>
                         </form>
                     </div>

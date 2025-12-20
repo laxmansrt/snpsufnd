@@ -1,11 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, BookOpen, Calendar, DollarSign, TrendingUp, AlertCircle, MessageSquare, Bus } from 'lucide-react';
+import { User, BookOpen, Calendar, DollarSign, TrendingUp, AlertCircle, MessageSquare, Bus, CheckCircle, XCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import { attendanceAPI } from '../../services/attendanceService';
 import { marksAPI } from '../../services/marksService';
 import { useEffect, useState } from 'react';
+import clsx from 'clsx';
 
 const ParentDashboard = () => {
     const navigate = useNavigate();
@@ -40,8 +41,9 @@ const ParentDashboard = () => {
             // Fetch Attendance
             const attReport = await attendanceAPI.getAttendanceReport({ studentUsn: usn });
             setAttendanceData(attReport.records.slice(0, 5).map(r => ({
-                name: new Date(r.date).toLocaleDateString('en-US', { weekday: 'short' }),
-                present: r.status === 'present' ? 1 : 0
+                name: r.subject,
+                present: r.status === 'present',
+                dateLabel: new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
             })));
 
             // Fetch Marks
@@ -239,31 +241,75 @@ const ParentDashboard = () => {
                 </div>
             </div>
 
-            {/* Recent Notices */}
-            <div className="bg-[#1e293b] rounded-xl border border-gray-700 shadow-lg overflow-hidden">
-                <div className="p-6 border-b border-gray-700 flex justify-between items-center">
-                    <h3 className="text-lg font-bold text-white">Notices & Circulars</h3>
-                    <button className="text-[hsl(var(--secondary))] text-sm hover:underline">View All</button>
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Attendance */}
+                <div className="bg-[#1e293b] rounded-xl border border-gray-700 shadow-lg overflow-hidden">
+                    <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+                        <h3 className="text-lg font-bold text-white">Recent Attendance</h3>
+                        <button
+                            onClick={() => navigate('/dashboard/attendance')}
+                            className="text-[hsl(var(--secondary))] text-sm hover:underline"
+                        >
+                            View All
+                        </button>
+                    </div>
+                    <div className="divide-y divide-gray-700">
+                        {attendanceData.length > 0 ? (
+                            attendanceData.map((record, index) => (
+                                <div key={index} className="p-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors">
+                                    <div className="flex items-center gap-4">
+                                        <div className={clsx(
+                                            "p-2 rounded-lg",
+                                            record.present ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
+                                        )}>
+                                            {record.present ? <CheckCircle size={20} /> : <XCircle size={20} />}
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-medium">{record.name}</p>
+                                            <p className="text-sm text-gray-400">{record.present ? 'Present' : 'Absent'}</p>
+                                        </div>
+                                    </div>
+                                    <span className="text-sm text-gray-500">{record.dateLabel}</span>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-8 text-center text-gray-500">No recent attendance records</div>
+                        )}
+                    </div>
                 </div>
-                <div className="divide-y divide-gray-700">
-                    {[
-                        { title: "Parent-Teacher Meeting", date: "Nov 28, 2025", type: "Event" },
-                        { title: "Semester Exam Schedule Released", date: "Nov 25, 2025", type: "Academic" },
-                        { title: "Holiday on account of State Festival", date: "Nov 20, 2025", type: "General" },
-                    ].map((notice, index) => (
-                        <div key={index} className="p-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <div className="p-2 bg-gray-700 rounded-lg text-[hsl(var(--secondary))]">
-                                    <AlertCircle size={20} />
+
+                {/* Recent Notices */}
+                <div className="bg-[#1e293b] rounded-xl border border-gray-700 shadow-lg overflow-hidden">
+                    <div className="p-6 border-b border-gray-700 flex justify-between items-center">
+                        <h3 className="text-lg font-bold text-white">Notices & Circulars</h3>
+                        <button
+                            onClick={() => navigate('/dashboard/messages')}
+                            className="text-[hsl(var(--secondary))] text-sm hover:underline"
+                        >
+                            View All
+                        </button>
+                    </div>
+                    <div className="divide-y divide-gray-700">
+                        {[
+                            { title: "Parent-Teacher Meeting", date: "Nov 28, 2025", type: "Event" },
+                            { title: "Semester Exam Schedule Released", date: "Nov 25, 2025", type: "Academic" },
+                            { title: "Holiday on account of State Festival", date: "Nov 20, 2025", type: "General" },
+                        ].map((notice, index) => (
+                            <div key={index} className="p-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-2 bg-gray-700 rounded-lg text-[hsl(var(--secondary))]">
+                                        <AlertCircle size={20} />
+                                    </div>
+                                    <div>
+                                        <p className="text-white font-medium">{notice.title}</p>
+                                        <p className="text-sm text-gray-400">{notice.type}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="text-white font-medium">{notice.title}</p>
-                                    <p className="text-sm text-gray-400">{notice.type}</p>
-                                </div>
+                                <span className="text-sm text-gray-500">{notice.date}</span>
                             </div>
-                            <span className="text-sm text-gray-500">{notice.date}</span>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

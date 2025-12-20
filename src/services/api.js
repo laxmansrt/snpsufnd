@@ -53,6 +53,28 @@ export const authAPI = {
         if (!response.ok) throw new Error(data.message || 'Failed to fetch users');
         return data;
     },
+
+    updateProfile: async (profileData) => {
+        const response = await fetch(`${API_URL}/auth/profile`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(profileData),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to update profile');
+        return data;
+    },
+
+    updatePassword: async (passwordData) => {
+        const response = await fetch(`${API_URL}/auth/password`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(passwordData),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to update password');
+        return data;
+    },
 };
 
 // Lost & Found API

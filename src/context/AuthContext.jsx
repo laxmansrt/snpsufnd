@@ -52,10 +52,44 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('user');
     };
 
+    const updateProfile = async (profileData) => {
+        try {
+            const { authAPI } = await import('../services/api');
+            const updatedUser = await authAPI.updateProfile(profileData);
+
+            const newUserData = {
+                ...user,
+                name: updatedUser.name,
+                email: updatedUser.email,
+                avatar: `https://ui-avatars.com/api/?name=${updatedUser.name}&background=random`
+            };
+
+            setUser(newUserData);
+            localStorage.setItem('user', JSON.stringify(newUserData));
+            return { success: true };
+        } catch (error) {
+            console.error('Update profile error:', error);
+            return { success: false, message: error.message };
+        }
+    };
+
+    const updatePassword = async (passwordData) => {
+        try {
+            const { authAPI } = await import('../services/api');
+            await authAPI.updatePassword(passwordData);
+            return { success: true };
+        } catch (error) {
+            console.error('Update password error:', error);
+            return { success: false, message: error.message };
+        }
+    };
+
     const value = {
         user,
         login,
         logout,
+        updateProfile,
+        updatePassword,
         loading
     };
 

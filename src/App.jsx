@@ -11,6 +11,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import BulkUploadPage from './pages/admin/BulkUploadPage';
 import MeetingPage from './pages/admin/MeetingPage';
 import ParentDashboard from './pages/parent/ParentDashboard';
+import ChildProgress from './pages/parent/ChildProgress';
 import FacultyDashboard from './pages/faculty/FacultyDashboard';
 import AttendancePage from './pages/AttendancePage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
@@ -103,7 +104,7 @@ function App() {
             <Route path="messages" element={<AnnouncementsPage />} />
             <Route path="materials" element={<StudyMaterialPage />} />
             <Route path="students" element={<StudentInsightsPage />} />
-            <Route path="child" element={<PlaceholderPage title="Child Progress" description="Monitor your child's academic progress." icon={Users} />} />
+            <Route path="child" element={<ChildProgress />} />
             <Route path="settings" element={<SettingsPage />} />
 
             {/* Catch all for dashboard */}
