@@ -4,11 +4,11 @@ import { lostFoundAPI } from './api';
 const mapItem = (item) => ({
     ...item,
     id: item._id,
-    user: item.reportedBy ? {
+    user: (item.reportedBy && typeof item.reportedBy === 'object') ? {
         name: item.reportedBy.name,
         email: item.reportedBy.email,
-        role: 'student' // Default or fetch if available
-    } : { name: 'Unknown', role: 'student' }
+        role: 'student'
+    } : { name: 'User', role: 'student' }
 });
 
 export const getItems = async () => {

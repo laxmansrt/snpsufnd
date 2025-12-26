@@ -94,9 +94,9 @@ const LostFound = () => {
 
     const filteredItems = items.filter(item => {
         const matchesFilter = filter === 'all' || item.type === filter;
-        const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.description.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesFilter && matchesSearch;
+        const titleMatch = (item.itemName || '').toLowerCase().includes(searchTerm.toLowerCase());
+        const descMatch = (item.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesFilter && (titleMatch || descMatch);
     });
 
     return (
@@ -172,7 +172,7 @@ const LostFound = () => {
                             <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group">
                                 <div className="relative h-48 bg-gray-100">
                                     {item.imageUrl ? (
-                                        <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                                        <img src={item.imageUrl} alt={item.itemName} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                             <Tag size={48} />
@@ -194,8 +194,8 @@ const LostFound = () => {
 
                                 <div className="p-5">
                                     <div className="flex justify-between items-start mb-2">
-                                        <h3 className="font-bold text-lg text-gray-900 line-clamp-1">{item.title}</h3>
-                                        <span className="text-xs text-gray-400 whitespace-nowrap">{item.date}</span>
+                                        <h3 className="font-bold text-lg text-gray-900 line-clamp-1">{item.itemName}</h3>
+                                        <span className="text-xs text-gray-400 whitespace-nowrap">{new Date(item.date).toLocaleDateString()}</span>
                                     </div>
 
                                     <p className="text-gray-600 text-sm mb-4 line-clamp-2">{item.description}</p>
@@ -214,9 +214,9 @@ const LostFound = () => {
                                     <div className="pt-4 border-t border-gray-100 flex justify-between items-center">
                                         <div className="flex items-center gap-2">
                                             <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                                                {item.user.name.charAt(0)}
+                                                {(item.user?.name || 'U').charAt(0)}
                                             </div>
-                                            <span className="text-xs text-gray-500">{item.user.name}</span>
+                                            <span className="text-xs text-gray-500">{item.user?.name || 'User'}</span>
                                         </div>
 
                                         {item.status !== 'claimed' && (
