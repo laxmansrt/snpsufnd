@@ -52,27 +52,62 @@ const LandingPage = () => {
 
     // Animated counter for stats
     useEffect(() => {
-        const targetStats = { students: 2847, faculty: 156, notices: 12, uptime: 99.9 };
-        const duration = 2000;
-        const steps = 60;
-        const interval = duration / steps;
+        const fetchStats = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/public/stats`);
+                const data = await response.json();
+                
+                const targetStats = {
+                    students: data.students || 2847,
+                    faculty: data.faculty || 156,
+                    notices: data.notices || 12,
+                    uptime: data.uptime || 99.9
+                };
 
-        let currentStep = 0;
-        const timer = setInterval(() => {
-            currentStep++;
-            const progress = currentStep / steps;
+                const duration = 2000;
+                const steps = 60;
+                const interval = duration / steps;
 
-            setStats({
-                students: Math.floor(targetStats.students * progress),
-                faculty: Math.floor(targetStats.faculty * progress),
-                notices: Math.floor(targetStats.notices * progress),
-                uptime: (targetStats.uptime * progress).toFixed(1)
-            });
+                let currentStep = 0;
+                const timer = setInterval(() => {
+                    currentStep++;
+                    const progress = currentStep / steps;
 
-            if (currentStep >= steps) clearInterval(timer);
-        }, interval);
+                    setStats({
+                        students: Math.floor(targetStats.students * progress),
+                        faculty: Math.floor(targetStats.faculty * progress),
+                        notices: Math.floor(targetStats.notices * progress),
+                        uptime: (targetStats.uptime * progress).toFixed(1)
+                    });
 
-        return () => clearInterval(timer);
+                    if (currentStep >= steps) clearInterval(timer);
+                }, interval);
+
+                return () => clearInterval(timer);
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+                // Fallback to placeholders if API fails
+                const targetStats = { students: 2847, faculty: 156, notices: 12, uptime: 99.9 };
+                const duration = 2000;
+                const steps = 60;
+                const interval = duration / steps;
+                let currentStep = 0;
+                const timer = setInterval(() => {
+                    currentStep++;
+                    const progress = currentStep / steps;
+                    setStats({
+                        students: Math.floor(targetStats.students * progress),
+                        faculty: Math.floor(targetStats.faculty * progress),
+                        notices: Math.floor(targetStats.notices * progress),
+                        uptime: (targetStats.uptime * progress).toFixed(1)
+                    });
+                    if (currentStep >= steps) clearInterval(timer);
+                }, interval);
+                return () => clearInterval(timer);
+            }
+        };
+
+        fetchStats();
     }, []);
 
     // Daily AI tip

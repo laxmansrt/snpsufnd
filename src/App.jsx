@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import MainLayout from './layouts/MainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import LandingPage from './pages/LandingPage';
@@ -65,53 +66,55 @@ const RoleBasedRedirect = () => {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<LandingPage />} />
-            <Route path="login" element={<LoginPage />} />
-          </Route>
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<LandingPage />} />
+              <Route path="login" element={<LoginPage />} />
+            </Route>
 
-          {/* Protected Dashboard Routes */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<RoleBasedRedirect />} />
-            <Route path="student" element={<StudentDashboard />} />
-            <Route path="admin" element={<AdminDashboard />} />
-            <Route path="admin/bulk-upload" element={<BulkUploadPage />} />
-            <Route path="admin/meetings" element={<MeetingPage />} />
-            <Route path="parent" element={<ParentDashboard />} />
-            <Route path="faculty" element={<FacultyDashboard />} />
-            <Route path="lost-found" element={<LostFound />} />
+            {/* Protected Dashboard Routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <DashboardLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<RoleBasedRedirect />} />
+              <Route path="student" element={<StudentDashboard />} />
+              <Route path="admin" element={<AdminDashboard />} />
+              <Route path="admin/bulk-upload" element={<BulkUploadPage />} />
+              <Route path="admin/meetings" element={<MeetingPage />} />
+              <Route path="parent" element={<ParentDashboard />} />
+              <Route path="faculty" element={<FacultyDashboard />} />
+              <Route path="lost-found" element={<LostFound />} />
 
-            {/* Placeholder Routes */}
-            <Route path="users" element={<UserManagementPage />} />
-            <Route path="academics" element={<AcademicsPage />} />
-            <Route path="attendance" element={<AttendancePage />} />
-            <Route path="marks" element={<MarksEntryPage />} />
-            <Route path="results" element={<ResultsPage />} />
-            <Route path="fees" element={<FeeStatusPage />} />
-            <Route path="finance" element={<FinancePage />} />
-            <Route path="transport" element={<TransportPage />} />
-            <Route path="hostel" element={<HostelPage />} />
-            <Route path="communication" element={<AnnouncementsPage />} />
-            <Route path="announcements" element={<AnnouncementsPage />} />
-            <Route path="notices" element={<AnnouncementsPage />} />
-            <Route path="messages" element={<AnnouncementsPage />} />
-            <Route path="materials" element={<StudyMaterialPage />} />
-            <Route path="students" element={<StudentInsightsPage />} />
-            <Route path="child" element={<ChildProgress />} />
-            <Route path="settings" element={<SettingsPage />} />
+              {/* Placeholder Routes */}
+              <Route path="users" element={<UserManagementPage />} />
+              <Route path="academics" element={<AcademicsPage />} />
+              <Route path="attendance" element={<AttendancePage />} />
+              <Route path="marks" element={<MarksEntryPage />} />
+              <Route path="results" element={<ResultsPage />} />
+              <Route path="fees" element={<FeeStatusPage />} />
+              <Route path="finance" element={<FinancePage />} />
+              <Route path="transport" element={<TransportPage />} />
+              <Route path="hostel" element={<HostelPage />} />
+              <Route path="communication" element={<AnnouncementsPage />} />
+              <Route path="announcements" element={<AnnouncementsPage />} />
+              <Route path="notices" element={<AnnouncementsPage />} />
+              <Route path="messages" element={<AnnouncementsPage />} />
+              <Route path="materials" element={<StudyMaterialPage />} />
+              <Route path="students" element={<StudentInsightsPage />} />
+              <Route path="child" element={<ChildProgress />} />
+              <Route path="settings" element={<SettingsPage />} />
 
-            {/* Catch all for dashboard */}
-            <Route path="*" element={<PlaceholderPage title="Page Not Found" description="The page you're looking for doesn't exist." />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+              {/* Catch all for dashboard */}
+              <Route path="*" element={<PlaceholderPage title="Page Not Found" description="The page you're looking for doesn't exist." />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

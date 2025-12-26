@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { User, Bell, Lock, Globe, Moon, Shield, Save, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const SettingsPage = () => {
     const { user, updateProfile, updatePassword } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const [activeTab, setActiveTab] = useState('profile');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -278,17 +280,31 @@ const SettingsPage = () => {
                         <div className="space-y-6">
                             <h2 className="text-lg font-bold text-white border-b border-gray-700 pb-4">Appearance Settings</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="border-2 border-gray-700 rounded-xl p-4 cursor-pointer hover:bg-[#0f172a] transition-all group">
-                                    <div className="h-24 bg-white border rounded-lg mb-3 shadow-sm overflow-hidden">
-                                        <div className="h-4 bg-gray-100 border-b"></div>
+                                <div
+                                    onClick={() => theme === 'dark' && toggleTheme()}
+                                    className={`border-2 rounded-xl p-4 cursor-pointer transition-all group ${theme === 'light'
+                                        ? 'border-[#d4af37] bg-white shadow-lg shadow-[#d4af37]/5'
+                                        : 'border-gray-700 hover:bg-[#0f172a]'
+                                        }`}
+                                >
+                                    <div className="h-24 bg-gray-50 border rounded-lg mb-3 shadow-sm overflow-hidden">
+                                        <div className="h-4 bg-gray-200 border-b"></div>
                                         <div className="p-2 space-y-1">
-                                            <div className="h-2 w-3/4 bg-gray-200 rounded"></div>
-                                            <div className="h-2 w-1/2 bg-gray-200 rounded"></div>
+                                            <div className="h-2 w-3/4 bg-gray-300 rounded"></div>
+                                            <div className="h-2 w-1/2 bg-gray-300 rounded"></div>
                                         </div>
                                     </div>
-                                    <p className="text-center font-medium text-gray-400 group-hover:text-white">Light Mode (Coming Soon)</p>
+                                    <p className={`text-center font-medium ${theme === 'light' ? 'text-[#d4af37]' : 'text-gray-400 group-hover:text-white'}`}>
+                                        Light Mode {theme === 'light' && '(Active)'}
+                                    </p>
                                 </div>
-                                <div className="border-2 border-[#d4af37] rounded-xl p-4 cursor-pointer bg-[#0f172a] shadow-lg shadow-[#d4af37]/5">
+                                <div
+                                    onClick={() => theme === 'light' && toggleTheme()}
+                                    className={`border-2 rounded-xl p-4 cursor-pointer transition-all group ${theme === 'dark'
+                                        ? 'border-[#d4af37] bg-[#0f172a] shadow-lg shadow-[#d4af37]/5'
+                                        : 'border-gray-700 hover:bg-[#0f172a]'
+                                        }`}
+                                >
                                     <div className="h-24 bg-[#0f172a] border-gray-800 border rounded-lg mb-3 shadow-sm overflow-hidden">
                                         <div className="h-4 bg-gray-900 border-b border-gray-800"></div>
                                         <div className="p-2 space-y-1">
@@ -296,7 +312,9 @@ const SettingsPage = () => {
                                             <div className="h-2 w-1/2 bg-gray-800 rounded"></div>
                                         </div>
                                     </div>
-                                    <p className="text-center font-medium text-[#d4af37]">Dark Mode (Active)</p>
+                                    <p className={`text-center font-medium ${theme === 'dark' ? 'text-[#d4af37]' : 'text-gray-400 group-hover:text-white'}`}>
+                                        Dark Mode {theme === 'dark' && '(Active)'}
+                                    </p>
                                 </div>
                             </div>
                         </div>

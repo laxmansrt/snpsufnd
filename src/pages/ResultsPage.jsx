@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 const ResultsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSemester, setSelectedSemester] = useState('all');
+    const [selectedBranch, setSelectedBranch] = useState('all');
 
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -24,6 +25,7 @@ const ResultsPage = () => {
                 studentName: r.studentName,
                 usn: r.studentUsn,
                 semester: r.class.split('Sem ')[1] || 'N/A',
+                branch: r.class.split(' - ')[0] || 'Unknown', // Extract branch
                 sgpa: (r.obtainedMarks / r.maxMarks * 10).toFixed(1), // Mock SGPA calculation
                 cgpa: (r.obtainedMarks / r.maxMarks * 10).toFixed(1), // Mock CGPA calculation
                 status: r.obtainedMarks >= (r.maxMarks * 0.4) ? 'Pass' : 'Fail'
@@ -39,7 +41,8 @@ const ResultsPage = () => {
         const matchesSearch = result.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             result.usn.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSemester = selectedSemester === 'all' || result.semester === selectedSemester;
-        return matchesSearch && matchesSemester;
+        const matchesBranch = selectedBranch === 'all' || result.branch === selectedBranch;
+        return matchesSearch && matchesSemester && matchesBranch;
     });
 
     const handleExport = () => {
@@ -80,6 +83,23 @@ const ResultsPage = () => {
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                     <Filter size={18} className="text-gray-400" />
+
+                    {/* Branch Filter */}
+                    <select
+                        className="p-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                        value={selectedBranch}
+                        onChange={(e) => setSelectedBranch(e.target.value)}
+                    >
+                        <option value="all">All Branches</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ISE">ISE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                        <option value="ME">ME</option>
+                        <option value="CV">CV</option>
+                    </select>
+
+                    {/* Semester Filter */}
                     <select
                         className="p-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
                         value={selectedSemester}
@@ -106,6 +126,7 @@ const ResultsPage = () => {
                             <tr>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Student</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">USN</th>
+                                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Branch</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">Semester</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">SGPA</th>
                                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">CGPA</th>
@@ -125,6 +146,7 @@ const ResultsPage = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{result.usn}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{result.branch}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{result.semester}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{result.sgpa}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{result.cgpa}</td>

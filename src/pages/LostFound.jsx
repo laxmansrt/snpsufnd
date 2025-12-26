@@ -61,9 +61,14 @@ const LostFound = () => {
         e.preventDefault();
         const newItem = {
             ...formData,
+            itemName: formData.title,
+            category: 'Others', // Default category or add a dropdown
+            date: new Date(),
+            contactName: user.name,
+            contactPhone: formData.contact,
             type: activeTab === 'report-lost' ? 'lost' : 'found',
-            user: { name: user.name, role: user.role },
-            imageUrl: imagePreview // Include the image preview as base64
+            user: { name: user.name, role: user.role }, // Keep this for optimistic UI update if needed
+            imageUrl: imagePreview
         };
         await addItem(newItem);
         setFormData({ title: '', description: '', location: '', contact: user?.email || '', type: 'lost' });
