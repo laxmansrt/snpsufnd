@@ -41,7 +41,7 @@ const StudyMaterialPage = () => {
             if (selectedSubject !== 'All Subjects') filters.subject = selectedSubject;
 
             const data = await studyMaterialAPI.getMaterials(filters);
-            setMaterials(data);
+            setMaterials(data.materials || []);
         } catch (error) {
             console.error('Error loading materials:', error);
         } finally {

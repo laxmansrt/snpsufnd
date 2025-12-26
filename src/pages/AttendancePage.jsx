@@ -110,12 +110,12 @@ const AttendancePage = () => {
                 status: attendance[usn],
             }));
 
-            await attendanceAPI.markAttendance({
-                class: selectedClass,
-                subject: selectedSubject,
-                date: selectedDate,
-                attendance: attendanceData,
-            });
+            await attendanceAPI.markAttendance(
+                selectedClass,
+                selectedSubject,
+                selectedDate,
+                attendanceData
+            );
 
             alert('Attendance marked successfully!');
         } catch (error) {

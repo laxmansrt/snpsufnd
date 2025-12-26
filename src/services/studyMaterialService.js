@@ -1,9 +1,3 @@
-import { lostFoundAPI } from './api'; // Re-using the base API_URL from api.js logic
-// Actually, let's just import API_URL logic or duplicate it to avoid circular deps if api.js imports this.
-// But api.js doesn't import this.
-// However, api.js exports specific objects. I should probably add studyMaterialAPI to api.js or create a new service file.
-// Let's create a new service file that follows the pattern.
-
 import { API_URL, getAuthHeaders } from './config';
 
 export const studyMaterialAPI = {
