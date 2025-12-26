@@ -30,6 +30,8 @@ import FeeStatusPage from './pages/FeeStatusPage';
 import StudentExamsPage from './pages/student/StudentExamsPage';
 import CreateExamPage from './pages/admin/CreateExamPage';
 import TakeExamPage from './pages/student/TakeExamPage';
+import ApplicationsPage from './pages/student/ApplicationsPage';
+import ManageApplicationsPage from './pages/admin/ManageApplicationsPage';
 import PlaceholderPage from './components/PlaceholderPage';
 import { Users, BookOpen, Calendar, FileText, DollarSign, Bus, Home, Bell, Settings } from 'lucide-react';
 
@@ -114,6 +116,8 @@ function App() {
               <Route path="student/exams" element={<StudentExamsPage />} />
               <Route path="admin/create-exam" element={<CreateExamPage />} />
               <Route path="exam/:id" element={<TakeExamPage />} />
+              <Route path="student/applications" element={<ApplicationsPage />} />
+              <Route path="admin/applications" element={<ManageApplicationsPage />} />
 
               {/* Catch all for dashboard */}
               <Route path="*" element={<PlaceholderPage title="Page Not Found" description="The page you're looking for doesn't exist." />} />
