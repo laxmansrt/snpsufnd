@@ -93,7 +93,8 @@ const StudyMaterialPage = () => {
             alert('Material uploaded successfully!');
         } catch (error) {
             console.error('Upload error:', error);
-            alert('Failed to upload material');
+            const errorMessage = error.response?.data?.message || error.message || 'Failed to upload material';
+            alert(errorMessage);
         }
     };
 
