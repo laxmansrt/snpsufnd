@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, FileText, CheckCircle, AlertCircle } from 'lucide-react';
+import { Search, Filter, Download, FileText, CheckCircle, AlertCircle, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { marksAPI } from '../services/marksService';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +13,11 @@ const ResultsPage = () => {
     const [loading, setLoading] = useState(true);
     const [isPublishing, setIsPublishing] = useState(false);
 
+    // Details Modal State
+    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [studentMarks, setStudentMarks] = useState([]);
+    const [loadingDetails, setLoadingDetails] = useState(false);
+
     useEffect(() => {
         fetchResults();
     }, []);
@@ -21,20 +26,48 @@ const ResultsPage = () => {
         try {
             setLoading(true);
             const data = await marksAPI.getMarks();
-            setResults(data.map(r => ({
-                id: r._id,
-                studentName: r.studentName,
-                usn: r.studentUsn,
-                semester: r.class.split('Sem ')[1] || 'N/A',
-                branch: r.class.split(' - ')[0] || 'Unknown',
-                sgpa: (r.obtainedMarks / r.maxMarks * 10).toFixed(1),
-                cgpa: (r.obtainedMarks / r.maxMarks * 10).toFixed(1),
-                status: r.obtainedMarks >= (r.maxMarks * 0.4) ? 'Pass' : 'Fail'
+            // Group by student USN to show summary in main table
+            const grouped = data.reduce((acc, curr) => {
+                if (!acc[curr.studentUsn]) {
+                    acc[curr.studentUsn] = {
+                        id: curr.studentUsn, // Use USN as unique ID for the student entry
+                        studentName: curr.studentName,
+                        usn: curr.studentUsn,
+                        semester: curr.class.split('Sem ')[1] || 'N/A',
+                        branch: curr.class.split(' - ')[0] || 'Unknown',
+                        totalObtained: 0,
+                        totalMax: 0,
+                        subjectsCount: 0
+                    };
+                }
+                acc[curr.studentUsn].totalObtained += curr.obtainedMarks;
+                acc[curr.studentUsn].totalMax += curr.maxMarks;
+                acc[curr.studentUsn].subjectsCount += 1;
+                return acc;
+            }, {});
+
+            setResults(Object.values(grouped).map(r => ({
+                ...r,
+                sgpa: (r.totalObtained / r.totalMax * 10).toFixed(1),
+                status: (r.totalObtained / r.totalMax) >= 0.4 ? 'Pass' : 'Fail'
             })));
         } catch (error) {
             console.error('Error fetching results:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleViewDetails = async (student) => {
+        try {
+            setSelectedStudent(student);
+            setLoadingDetails(true);
+            const data = await marksAPI.getMarks({ studentUsn: student.usn });
+            setStudentMarks(data);
+        } catch (error) {
+            alert('Failed to fetch detailed marks');
+        } finally {
+            setLoadingDetails(false);
         }
     };
 
@@ -180,7 +213,12 @@ const ResultsPage = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button className="text-[#d4af37] hover:text-[#c5a028]">View Details</button>
+                                        <button
+                                            onClick={() => handleViewDetails(result)}
+                                            className="text-[#d4af37] hover:text-[#c5a028] font-bold"
+                                        >
+                                            View Details
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -188,6 +226,93 @@ const ResultsPage = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Detailed Marksheet Modal */}
+            {selectedStudent && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-[#1e293b] w-full max-w-2xl rounded-2xl border border-gray-700 shadow-2xl overflow-hidden animate-scale-in">
+                        <div className="p-6 border-b border-gray-700 bg-[#0f172a] flex justify-between items-center">
+                            <div>
+                                <h2 className="text-xl font-bold text-white">{selectedStudent.studentName}</h2>
+                                <p className="text-sm text-gray-400">USN: {selectedStudent.usn} | Semester {selectedStudent.semester}</p>
+                            </div>
+                            <button
+                                onClick={() => setSelectedStudent(null)}
+                                className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            {loadingDetails ? (
+                                <div className="py-12 text-center text-gray-400 flex flex-col items-center gap-3">
+                                    <div className="w-8 h-8 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
+                                    <p>Loading marksheet...</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="bg-[#0f172a] p-4 rounded-xl border border-gray-700">
+                                            <p className="text-xs text-gray-500 uppercase font-bold">SGPA</p>
+                                            <p className="text-2xl font-black text-[#d4af37]">{selectedStudent.sgpa}</p>
+                                        </div>
+                                        <div className="bg-[#0f172a] p-4 rounded-xl border border-gray-700">
+                                            <p className="text-xs text-gray-500 uppercase font-bold">Result</p>
+                                            <p className={`text-lg font-bold ${selectedStudent.status === 'Pass' ? 'text-green-500' : 'text-red-500'}`}>{selectedStudent.status}</p>
+                                        </div>
+                                        <div className="bg-[#0f172a] p-4 rounded-xl border border-gray-700">
+                                            <p className="text-xs text-gray-500 uppercase font-bold">Obtained</p>
+                                            <p className="text-lg text-white font-bold">{selectedStudent.totalObtained} / {selectedStudent.totalMax}</p>
+                                        </div>
+                                        <div className="bg-[#0f172a] p-4 rounded-xl border border-gray-700">
+                                            <p className="text-xs text-gray-500 uppercase font-bold">Percentage</p>
+                                            <p className="text-lg text-white font-bold">{((selectedStudent.totalObtained / (selectedStudent.totalMax || 1)) * 100).toFixed(1)}%</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="overflow-hidden rounded-xl border border-gray-700">
+                                        <table className="w-full text-sm">
+                                            <thead className="bg-[#0f172a] text-gray-400">
+                                                <tr>
+                                                    <th className="px-4 py-3 text-left">Subject</th>
+                                                    <th className="px-4 py-3 text-center">Marks</th>
+                                                    <th className="px-4 py-3 text-center">Max</th>
+                                                    <th className="px-4 py-3 text-right">Grade</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-700 text-gray-300">
+                                                {studentMarks.map((m, idx) => (
+                                                    <tr key={idx} className="hover:bg-gray-800/50">
+                                                        <td className="px-4 py-3 font-medium text-white">{m.subject}</td>
+                                                        <td className="px-4 py-3 text-center">{m.obtainedMarks}</td>
+                                                        <td className="px-4 py-3 text-center">{m.maxMarks}</td>
+                                                        <td className="px-4 py-3 text-right font-bold text-[#d4af37]">
+                                                            {(m.obtainedMarks / m.maxMarks * 100) >= 90 ? 'O' :
+                                                                (m.obtainedMarks / m.maxMarks * 100) >= 80 ? 'A+' :
+                                                                    (m.obtainedMarks / m.maxMarks * 100) >= 70 ? 'A' :
+                                                                        (m.obtainedMarks / m.maxMarks * 100) >= 60 ? 'B+' :
+                                                                            (m.obtainedMarks / m.maxMarks * 100) >= 50 ? 'B' :
+                                                                                (m.obtainedMarks / m.maxMarks * 100) >= 40 ? 'P' : 'F'}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-4 bg-[#0f172a] border-t border-gray-700 flex justify-end">
+                            <button
+                                onClick={() => setSelectedStudent(null)}
+                                className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
