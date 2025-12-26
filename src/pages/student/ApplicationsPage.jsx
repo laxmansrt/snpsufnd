@@ -257,6 +257,39 @@ const ApplicationsPage = () => {
                             <form onSubmit={handleHostelSubmit} className="p-6 space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Student Phone</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={hostelForm.phone}
+                                            onChange={(e) => setHostelForm({ ...hostelForm, phone: e.target.value })}
+                                            className="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Semester</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            value={hostelForm.semester}
+                                            onChange={(e) => setHostelForm({ ...hostelForm, semester: e.target.value })}
+                                            className="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Department</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={hostelForm.department}
+                                        onChange={(e) => setHostelForm({ ...hostelForm, department: e.target.value })}
+                                        className="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
                                         <label className="text-xs font-bold text-gray-500 uppercase">Room Type</label>
                                         <select
                                             value={hostelForm.roomPreference}
