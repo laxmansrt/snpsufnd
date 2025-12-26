@@ -17,8 +17,8 @@ const ApplicationsPage = () => {
     // Form States
     const [transportForm, setTransportForm] = useState({
         phone: user?.phone || '',
-        semester: user?.semester || 1,
-        department: user?.department || '',
+        semester: user?.studentData?.semester || 1,
+        department: user?.studentData?.department || '',
         routeId: '',
         routeName: '',
         pickupPoint: ''
@@ -26,8 +26,8 @@ const ApplicationsPage = () => {
 
     const [hostelForm, setHostelForm] = useState({
         phone: user?.phone || '',
-        semester: user?.semester || 1,
-        department: user?.department || '',
+        semester: user?.studentData?.semester || 1,
+        department: user?.studentData?.department || '',
         roomPreference: 'single',
         blockPreference: 'Block A',
         guardianName: '',
@@ -40,6 +40,22 @@ const ApplicationsPage = () => {
             pincode: ''
         }
     });
+
+    // Update form when user data is available
+    useEffect(() => {
+        if (user) {
+            setTransportForm(prev => ({
+                ...prev,
+                semester: user.studentData?.semester || 1,
+                department: user.studentData?.department || ''
+            }));
+            setHostelForm(prev => ({
+                ...prev,
+                semester: user.studentData?.semester || 1,
+                department: user.studentData?.department || ''
+            }));
+        }
+    }, [user]);
 
     const [routes, setRoutes] = useState([]);
 
@@ -71,7 +87,8 @@ const ApplicationsPage = () => {
             const selectedRoute = routes.find(r => r._id === transportForm.routeId);
             await transportAPI.submitApplication({
                 ...transportForm,
-                studentUsn: user.usn,
+                studentId: user.id,
+                studentUsn: user.studentData?.usn || 'N/A',
                 studentName: user.name,
                 email: user.email,
                 routeName: selectedRoute?.routeName || ''
@@ -91,7 +108,8 @@ const ApplicationsPage = () => {
             setLoading(true);
             await hostelAPI.submitApplication({
                 ...hostelForm,
-                studentUsn: user.usn,
+                studentId: user.id,
+                studentUsn: user.studentData?.usn || 'N/A',
                 studentName: user.name,
                 email: user.email
             });
@@ -282,6 +300,17 @@ const ApplicationsPage = () => {
                                             required
                                             value={hostelForm.guardianPhone}
                                             onChange={(e) => setHostelForm({ ...hostelForm, guardianPhone: e.target.value })}
+                                            className="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Guardian Relation</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            placeholder="Father, Mother, etc."
+                                            value={hostelForm.guardianRelation}
+                                            onChange={(e) => setHostelForm({ ...hostelForm, guardianRelation: e.target.value })}
                                             className="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
                                         />
                                     </div>
