@@ -143,9 +143,10 @@ const AIChat = () => {
 
         } catch (error) {
             console.error('AI Chat Error:', error);
+            const errorMessage = error.response?.data?.message || "I'm sorry, I'm having trouble connecting right now. Please try again later.";
             setChatHistory(prev => [...prev, {
                 role: 'model',
-                parts: [{ text: "I'm sorry, I'm having trouble connecting right now. Please try again later." }],
+                parts: [{ text: errorMessage }],
                 timestamp: new Date()
             }]);
         } finally {
