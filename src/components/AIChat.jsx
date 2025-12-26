@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, Send, X, Minus, Maximize2, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { MessageSquare, Send, X, Minus, Maximize2, Bot, User, Loader2, Sparkles, Mic, MicOff, Image, Paperclip, Trash2 } from 'lucide-react';
 import { aiAPI } from '../services/aiService';
 import { useAuth } from '../context/AuthContext';
 import clsx from 'clsx';
@@ -12,7 +12,12 @@ const AIChat = () => {
     const [chatHistory, setChatHistory] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
+    const [isListening, setIsListening] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const messagesEndRef = useRef(null);
+    const fileInputRef = useRef(null);
+    const recognitionRef = useRef(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -21,6 +26,63 @@ const AIChat = () => {
     useEffect(() => {
         scrollToBottom();
     }, [chatHistory]);
+
+    // Voice Recognition Setup
+    useEffect(() => {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognitionRef.current = new SpeechRecognition();
+            recognitionRef.current.continuous = false;
+            recognitionRef.current.interimResults = false;
+
+            recognitionRef.current.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                setMessage(prev => prev + (prev ? ' ' : '') + transcript);
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onend = () => {
+                setIsListening(false);
+            };
+
+            recognitionRef.current.onerror = () => {
+                setIsListening(false);
+            };
+        }
+    }, []);
+
+    const toggleListening = () => {
+        if (!recognitionRef.current) return;
+        if (isListening) {
+            recognitionRef.current.stop();
+        } else {
+            recognitionRef.current.start();
+            setIsListening(true);
+        }
+    };
+
+    // Image Upload Logic
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                alert("File size too large (max 5MB)");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result);
+                setPreviewUrl(URL.createObjectURL(file));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setSelectedImage(null);
+        setPreviewUrl(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
 
     // Typing animation effect
     const typeMessage = async (text, callback) => {
@@ -38,22 +100,28 @@ const AIChat = () => {
 
     const handleSend = async (e) => {
         e.preventDefault();
-        if (!message.trim() || loading) return;
+        const finalMessage = message.trim();
+        if ((!finalMessage && !selectedImage) || loading) return;
 
-        const userMessage = message.trim();
+        const currentImage = selectedImage;
+        const currentUserMessage = finalMessage;
+
         setMessage('');
+        setSelectedImage(null);
+        setPreviewUrl(null);
 
-        // Add user message with slide-in animation
+        // Add user message with image if present
         setChatHistory(prev => [...prev, {
             role: 'user',
-            parts: [{ text: userMessage }],
+            parts: [{ text: currentUserMessage || (currentImage ? "Image sent" : "") }],
+            image: currentImage,
             timestamp: new Date()
         }]);
 
         setLoading(true);
 
         try {
-            const response = await aiAPI.chat(userMessage, chatHistory);
+            const response = await aiAPI.chat(currentUserMessage, currentImage, chatHistory);
 
             // Add AI response with typing effect
             const aiMessage = {
@@ -89,20 +157,20 @@ const AIChat = () => {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 bg-[#0f172a] text-white p-4 rounded-xl shadow-2xl flex items-center gap-4 hover:scale-105 transition-all duration-300 z-50 group border border-gray-800 animate-slide-in max-w-sm"
+                className="fixed bottom-6 right-6 bg-[#0f172a] text-white rounded-xl shadow-2xl flex items-center gap-0 hover:gap-4 p-3 hover:p-4 hover:pr-6 transition-all duration-300 z-50 group border border-gray-800 animate-slide-in max-w-[60px] hover:max-w-md overflow-hidden"
             >
-                <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-[#1e293b] transition-colors">
-                    <MessageSquare size={24} className="text-[#d4af37]" />
+                <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-[#1e293b] transition-colors">
+                    <MessageSquare size={20} className="text-[#d4af37]" />
                 </div>
-                <div className="text-left">
+                <div className="text-left w-0 opacity-0 group-hover:w-auto group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">
                     <h3 className="font-bold text-base flex items-center gap-2">
-                        Hi <span className="animate-wave">👋</span> I'm your AI Assistant
+                        Hi <span className="animate-wave">👋</span> I'm SNPSU AI Assistant
                     </h3>
                     <p className="text-xs text-gray-400 mt-0.5">
-                        I can help you find results, notices, admissions info, and more!
+                        I can help you with results, voice search, and image analysis!
                     </p>
                 </div>
-            </button >
+            </button>
         );
     }
 
@@ -116,19 +184,19 @@ const AIChat = () => {
             <div className="p-4 bg-gradient-to-r from-[#0f172a] to-[#1a2942] border-b border-gray-700 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="relative">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#d4af37] to-[#c5a028] rounded-xl flex items-center justify-center text-[#0f172a] shadow-lg">
-                            <Bot size={22} />
+                        <div className="w-10 h-10 bg-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.3)] rounded-xl flex items-center justify-center text-[#0f172a]">
+                            <Bot size={22} strokeWidth={2.5} />
                         </div>
-                        <span className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-[#0f172a] animate-pulse"></span>
+                        <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-[#0f172a] shadow-lg"></span>
                     </div>
                     <div>
                         <h3 className="text-white font-bold text-sm flex items-center gap-2">
-                            Nexus AI Assistant
+                            SNPSU AI Assistant
                             <Sparkles size={14} className="text-[#d4af37] animate-pulse" />
                         </h3>
-                        <div className="flex items-center gap-1.5">
-                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                            <span className="text-xs text-gray-400">Always Online</span>
+                        <div className="flex items-center gap-1.5 font-medium">
+                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></span>
+                            <span className="text-[10px] text-gray-400 uppercase tracking-wider">Always Online</span>
                         </div>
                     </div>
                 </div>
@@ -201,6 +269,11 @@ const AIChat = () => {
                                         ? "bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-tr-none"
                                         : "bg-[#0f172a] text-gray-200 border border-gray-700 rounded-tl-none"
                                 )}>
+                                    {msg.image && (
+                                        <div className="mb-2 rounded-lg overflow-hidden border border-white/10">
+                                            <img src={msg.image} alt="User upload" className="max-w-full h-auto" />
+                                        </div>
+                                    )}
                                     {msg.parts[0].text}
                                     {isTyping && idx === chatHistory.length - 1 && (
                                         <span className="inline-block w-1 h-4 bg-[#d4af37] ml-1 animate-pulse"></span>
@@ -223,24 +296,75 @@ const AIChat = () => {
                     </div>
 
                     {/* Input Area */}
-                    <form onSubmit={handleSend} className="p-4 bg-gradient-to-r from-[#0f172a] to-[#1a2942] border-t border-gray-700">
-                        <div className="relative">
-                            <input
-                                type="text"
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder="Type your message..."
-                                className="w-full bg-[#1e293b] border border-gray-700 rounded-xl pl-4 pr-12 py-3 text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-[#d4af37] focus:border-transparent outline-none transition-all duration-200"
-                            />
-                            <button
-                                type="submit"
-                                disabled={!message.trim() || loading}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#d4af37] hover:bg-[#d4af37]/10 rounded-lg transition-all duration-200 disabled:opacity-50 hover:scale-110 active:scale-95"
-                            >
-                                <Send size={20} />
-                            </button>
-                        </div>
-                    </form>
+                    <div className="px-4 bg-gradient-to-r from-[#0f172a] to-[#1a2942] border-t border-gray-700">
+                        {/* Image Preview */}
+                        {previewUrl && (
+                            <div className="py-2 flex items-center gap-2 animate-slide-up">
+                                <div className="relative group">
+                                    <img src={previewUrl} className="w-12 h-12 rounded-lg object-cover border border-[#d4af37]" alt="Preview" />
+                                    <button
+                                        onClick={removeImage}
+                                        className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 shadow-lg group-hover:scale-110 transition-transform"
+                                    >
+                                        <Trash2 size={10} />
+                                    </button>
+                                </div>
+                                <span className="text-[10px] text-gray-400">Image attached</span>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSend} className="py-4">
+                            <div className="relative flex items-center gap-2">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleImageChange}
+                                    accept="image/*"
+                                    className="hidden"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className={clsx(
+                                        "p-2 rounded-lg transition-all hover:scale-110",
+                                        selectedImage ? "text-[#d4af37] bg-[#d4af37]/10" : "text-gray-400 hover:text-white hover:bg-gray-800"
+                                    )}
+                                    title="Upload photo"
+                                >
+                                    <Image size={20} />
+                                </button>
+
+                                <div className="relative flex-1">
+                                    <input
+                                        type="text"
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        placeholder={isListening ? "Listening..." : "Type your message..."}
+                                        className="w-full bg-[#1e293b] border border-gray-700 rounded-xl pl-4 pr-20 py-3 text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-[#d4af37] focus:border-transparent outline-none transition-all duration-200"
+                                    />
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                                        <button
+                                            type="button"
+                                            onClick={toggleListening}
+                                            className={clsx(
+                                                "p-2 rounded-lg transition-all",
+                                                isListening ? "text-red-500 bg-red-500/10 animate-pulse" : "text-gray-400 hover:text-white"
+                                            )}
+                                        >
+                                            {isListening ? <Mic size={18} /> : <MicOff size={18} />}
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={(!message.trim() && !selectedImage) || loading}
+                                            className="p-2 text-[#d4af37] hover:bg-[#d4af37]/10 rounded-lg transition-all duration-200 disabled:opacity-50 hover:scale-110 active:scale-95"
+                                        >
+                                            <Send size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </>
             )}
 

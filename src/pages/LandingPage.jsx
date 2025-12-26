@@ -30,6 +30,7 @@ const LandingPage = () => {
     const [stats, setStats] = useState({ students: 0, faculty: 0, notices: 0, uptime: 0 });
     const [darkMode, setDarkMode] = useState(false);
     const [dailyTip, setDailyTip] = useState('');
+    const [showTour, setShowTour] = useState(false);
 
     const campusImages = [
         campus1,
@@ -56,7 +57,7 @@ const LandingPage = () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}/api/public/stats`);
                 const data = await response.json();
-                
+
                 const targetStats = {
                     students: data.students || 2847,
                     faculty: data.faculty || 156,
@@ -260,7 +261,10 @@ const LandingPage = () => {
                                     Apply Now
                                     <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
                                 </Link>
-                                <button className="px-8 py-4 bg-transparent border-2 border-white/20 text-white rounded-xl font-bold text-lg hover:bg-white/5 transition-all flex items-center gap-2">
+                                <button
+                                    onClick={() => setShowTour(true)}
+                                    className="px-8 py-4 bg-transparent border-2 border-white/20 text-white rounded-xl font-bold text-lg hover:bg-white/5 transition-all flex items-center gap-2"
+                                >
                                     <Globe size={20} />
                                     Virtual Tour
                                 </button>
@@ -608,6 +612,39 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Virtual Tour Modal */}
+            {showTour && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+                    <div
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in"
+                        onClick={() => setShowTour(false)}
+                    ></div>
+                    <div className="relative w-full max-w-6xl h-[80vh] bg-gray-900 rounded-3xl overflow-hidden border border-gray-700 shadow-2xl animate-scale-in">
+                        {/* Modal Header */}
+                        <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center justify-between px-6">
+                            <div className="flex items-center gap-3">
+                                <Globe className="text-[#d4af37]" />
+                                <h3 className="text-white font-bold">3D Campus Tour - Satellite View</h3>
+                            </div>
+                            <button
+                                onClick={() => setShowTour(false)}
+                                className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        {/* Map Iframe */}
+                        <iframe
+                            src="https://maps.google.com/maps?q=Sapthagiri+NPS+University+Bengaluru&t=k&z=19&ie=UTF8&iwloc=&output=embed"
+                            className="w-full h-full border-none"
+                            allowFullScreen
+                            loading="lazy"
+                        ></iframe>
+                    </div>
+                </div>
+            )}
+
             <AIChat />
 
             <style jsx>{`
@@ -618,6 +655,13 @@ const LandingPage = () => {
                 @keyframes bounce-subtle {
                     0%, 100% { transform: translateY(0); }
                     50% { transform: translateY(-5px); }
+                }
+                @keyframes scale-in {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                .animate-scale-in {
+                    animation: scale-in 0.3s ease-out;
                 }
                 .animate-fade-in {
                     animation: fade-in 1s ease-out;

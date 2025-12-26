@@ -14,8 +14,8 @@ API.interceptors.request.use((config) => {
 });
 
 export const aiAPI = {
-    chat: async (message, history = [], context = "") => {
-        const res = await API.post("/chat", { message, history, context });
+    chat: async (message, image = null, history = [], context = "") => {
+        const res = await API.post("/chat", { message, image, history, context });
         return res.data;
     },
 };
