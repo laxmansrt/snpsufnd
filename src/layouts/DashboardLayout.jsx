@@ -130,12 +130,14 @@ const DashboardLayout = () => {
                 )}
             >
                 <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1f2937] shrink-0">
-                    <div className={clsx("flex items-center gap-2 overflow-hidden transition-all duration-300", !isSidebarOpen && "lg:hidden")}>
-                        <img
-                            src="/assets/sidebar-logo.jpg"
-                            alt="Logo"
-                            className="w-14 h-14 object-contain animate-float mix-blend-screen brightness-125"
-                        />
+                    <div className={clsx("flex items-center gap-3 overflow-hidden transition-all duration-300", !isSidebarOpen && "lg:hidden")}>
+                        <div className="w-12 h-12 bg-[#ede1d1] rounded-lg overflow-hidden flex items-center justify-center shadow-lg border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                            <img
+                                src="/assets/sidebar-logo.jpg"
+                                alt="Logo"
+                                className="w-10 h-10 object-contain animate-float"
+                            />
+                        </div>
                         <span className="font-serif font-bold text-xl whitespace-nowrap text-gray-900 dark:text-white">snpsu.edu.in</span>
                     </div>
                     <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
