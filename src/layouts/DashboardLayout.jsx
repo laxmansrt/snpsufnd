@@ -16,7 +16,8 @@ import {
     Menu,
     X,
     Search,
-    HelpCircle
+    HelpCircle,
+    ClipboardList
 } from 'lucide-react';
 import clsx from 'clsx';
 import AIChat from '../components/AIChat';
@@ -61,6 +62,7 @@ const DashboardLayout = () => {
             { icon: BookOpen, label: 'Academics', path: '/dashboard/academics' },
             { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
             { icon: FileText, label: 'Results', path: '/dashboard/results' },
+            { icon: ClipboardList, label: 'Exams', path: '/dashboard/admin/create-exam' },
             { icon: DollarSign, label: 'Finance', path: '/dashboard/finance' },
             { icon: Bus, label: 'Transport', path: '/dashboard/transport' },
             { icon: Home, label: 'Hostel', path: '/dashboard/hostel' },
@@ -78,6 +80,7 @@ const DashboardLayout = () => {
 
         const student = [
             { icon: BookOpen, label: 'My Academics', path: '/dashboard/academics' },
+            { icon: ClipboardList, label: 'Online Exams', path: '/dashboard/student/exams' },
             { icon: FileText, label: 'Study Material', path: '/dashboard/materials' },
             { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
             { icon: DollarSign, label: 'Fee Status', path: '/dashboard/fees' },

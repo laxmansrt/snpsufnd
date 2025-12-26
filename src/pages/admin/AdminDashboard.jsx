@@ -195,6 +195,13 @@ const AdminDashboard = () => {
                         <Video size={18} />
                         <span>Meet</span>
                     </Link>
+                    <Link
+                        to="/dashboard/admin/create-exam"
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                        <BookOpen size={18} />
+                        <span>Create Exam</span>
+                    </Link>
                 </div>
             </div>
 
@@ -491,7 +498,7 @@ const AdminDashboard = () => {
                                 <X size={24} />
                             </button>
                         </div>
-                        <form onSubmit={handlePostPostNotice} className="p-6 space-y-4">
+                        <form onSubmit={handlePostNotice} className="p-6 space-y-4">
                             {message.content && (
                                 <div className={`p-3 rounded-lg text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     {message.content}

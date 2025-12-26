@@ -27,6 +27,9 @@ import MarksEntryPage from './pages/MarksEntryPage';
 import StudyMaterialPage from './pages/StudyMaterialPage';
 import StudentInsightsPage from './pages/StudentInsightsPage';
 import FeeStatusPage from './pages/FeeStatusPage';
+import StudentExamsPage from './pages/student/StudentExamsPage';
+import CreateExamPage from './pages/admin/CreateExamPage';
+import TakeExamPage from './pages/student/TakeExamPage';
 import PlaceholderPage from './components/PlaceholderPage';
 import { Users, BookOpen, Calendar, FileText, DollarSign, Bus, Home, Bell, Settings } from 'lucide-react';
 
@@ -108,6 +111,9 @@ function App() {
               <Route path="students" element={<StudentInsightsPage />} />
               <Route path="child" element={<ChildProgress />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="student/exams" element={<StudentExamsPage />} />
+              <Route path="admin/create-exam" element={<CreateExamPage />} />
+              <Route path="exam/:id" element={<TakeExamPage />} />
 
               {/* Catch all for dashboard */}
               <Route path="*" element={<PlaceholderPage title="Page Not Found" description="The page you're looking for doesn't exist." />} />

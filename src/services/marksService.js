@@ -32,4 +32,15 @@ export const marksAPI = {
         if (!response.ok) throw new Error(data.message || 'Failed to fetch stats');
         return data;
     },
+
+    publishResults: async (branch, semester) => {
+        const response = await fetch(`${API_URL}/marks/publish`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ branch, semester }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to publish results');
+        return data;
+    },
 };
