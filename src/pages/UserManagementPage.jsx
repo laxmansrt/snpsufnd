@@ -13,6 +13,7 @@ const UserManagementPage = () => {
         staff: [],
     });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const tabs = [
         { id: 'students', label: 'Students' },
@@ -70,6 +71,7 @@ const UserManagementPage = () => {
             setUsers(organizedUsers);
         } catch (error) {
             console.error('Error fetching users:', error);
+            setError(error.message || 'Failed to fetch users');
         } finally {
             setLoading(false);
         }
@@ -129,20 +131,36 @@ const UserManagementPage = () => {
                     <h1 className="text-2xl font-bold text-white">User Management</h1>
                     <p className="text-gray-400">Manage students, faculty, and staff accounts.</p>
                 </div>
-                <div className="flex gap-3">
-                    <button
-                        onClick={exportToExcel}
-                        className="flex items-center gap-2 px-4 py-2 bg-[#1e293b] text-white border border-gray-700 rounded-lg hover:bg-[#0f172a] transition-colors"
-                    >
-                        <Download size={18} />
-                        <span>Export to Excel</span>
-                    </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-[#d4af37] text-[#0f172a] rounded-lg hover:bg-[#c5a028] transition-colors">
-                        <Plus size={18} />
-                        <span>Add New User</span>
-                    </button>
-                </div>
             </div>
+            <div className="flex gap-3">
+                <button
+                    onClick={fetchUsers}
+                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                    title="Refresh List"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+                </button>
+                <button
+                    onClick={exportToExcel}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#1e293b] text-white border border-gray-700 rounded-lg hover:bg-[#0f172a] transition-colors"
+                >
+                    <Download size={18} />
+                    <span>Export to Excel</span>
+                </button>
+                <button className="flex items-center gap-2 px-4 py-2 bg-[#d4af37] text-[#0f172a] rounded-lg hover:bg-[#c5a028] transition-colors">
+                    <Plus size={18} />
+                    <span>Add New User</span>
+                </button>
+            </div>
+
+            {
+                error && (
+                    <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-lg flex items-center justify-between">
+                        <p>{error}</p>
+                        <button onClick={fetchUsers} className="text-sm underline hover:text-red-300">Retry</button>
+                    </div>
+                )
+            }
 
             {/* Tabs */}
             <div className="flex gap-2 border-b border-gray-700">
@@ -282,7 +300,7 @@ const UserManagementPage = () => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

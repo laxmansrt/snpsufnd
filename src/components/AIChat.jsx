@@ -89,18 +89,20 @@ const AIChat = () => {
         return (
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-[#d4af37] to-[#c5a028] text-[#0f172a] rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 z-50 group animate-bounce-slow"
-                style={{
-                    animation: 'bounce-slow 3s ease-in-out infinite'
-                }}
+                className="fixed bottom-6 right-6 bg-[#0f172a] text-white p-4 rounded-xl shadow-2xl flex items-center gap-4 hover:scale-105 transition-all duration-300 z-50 group border border-gray-800 animate-slide-in max-w-sm"
             >
-                <MessageSquare size={28} className="animate-pulse" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-[#0f172a] animate-pulse"></span>
-                <span className="absolute right-20 bg-[#1e293b] text-white px-4 py-2 rounded-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap border border-gray-700 shadow-xl transform group-hover:translate-x-0 translate-x-2">
-                    <Sparkles size={14} className="inline mr-1 text-[#d4af37]" />
-                    Need help? Ask AI
-                </span>
-            </button>
+                <div className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center flex-shrink-0 group-hover:bg-[#1e293b] transition-colors">
+                    <MessageSquare size={24} className="text-[#d4af37]" />
+                </div>
+                <div className="text-left">
+                    <h3 className="font-bold text-base flex items-center gap-2">
+                        Hi <span className="animate-wave">👋</span> I'm your AI Assistant
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                        I can help you find results, notices, admissions info, and more!
+                    </p>
+                </div>
+            </button >
         );
     }
 
