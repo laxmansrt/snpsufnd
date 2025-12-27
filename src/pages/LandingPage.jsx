@@ -381,7 +381,7 @@ const LandingPage = () => {
 
                     <div className="grid md:grid-cols-2 gap-8">
                         {schools.map((school, index) => (
-                            <div key={index} className="group bg-[#1a2942] p-8 rounded-2xl border border-white/10 hover:border-[#d4af37]/50 transition-all hover:transform hover:scale-105">
+                            <div key={index} className="group bg-[#1a2942]/80 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-[#d4af37]/50 transition-all hover:transform hover:scale-105">
                                 <div className={`w-16 h-16 bg-gradient-to-br ${school.color} rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
                                     <school.icon className="text-white" size={32} />
                                 </div>
