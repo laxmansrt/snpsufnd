@@ -12,6 +12,7 @@ import campus8 from '../assets/campus8.png';
 import feature1 from '../assets/feature_section_1.png';
 import feature2 from '../assets/feature_section_2.png';
 import dashboardPreview from '../assets/dashboard_preview.png';
+import logoBg from '../assets/school-logo-bg.jpg';
 import AIChat from '../components/AIChat';
 
 const LandingPage = () => {
@@ -360,9 +361,14 @@ const LandingPage = () => {
 
             {/* Schools & Departments Section */}
             <section className="py-24 bg-[#0f1d35] relative overflow-hidden">
-                <div className="absolute inset-0 opacity-5">
-                    <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#d4af37] rounded-full filter blur-3xl"></div>
-                    <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl"></div>
+                <div className="absolute inset-0 opacity-50 pointer-events-none flex items-center justify-center overflow-hidden">
+                    <img
+                        src={logoBg}
+                        alt="Background"
+                        className="w-[80%] md:w-[60%] lg:w-[40%] object-contain opacity-50 animate-pulse"
+                    />
+                    <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#d4af37] rounded-full filter blur-3xl opacity-20"></div>
+                    <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600 rounded-full filter blur-3xl opacity-20"></div>
                 </div>
 
                 <div className="container mx-auto px-6 relative z-10">
