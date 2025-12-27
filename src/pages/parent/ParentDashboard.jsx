@@ -23,7 +23,7 @@ const ParentDashboard = () => {
     const [attendanceData, setAttendanceData] = useState([]);
     const [marksData, setMarksData] = useState([]);
     const [feeData, setFeeData] = useState([
-        { name: 'Paid', value: 0 },
+        { name: 'Paid', value: 105000 },
         { name: 'Pending', value: 0 },
     ]);
 
@@ -86,32 +86,34 @@ const ParentDashboard = () => {
                 </div>
             </div>
 
-            {/* Fee Payment Alert */}
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-4">
-                <div className="bg-red-100 p-2 rounded-lg text-red-600">
-                    <AlertCircle size={24} />
-                </div>
-                <div>
-                    <h3 className="font-bold text-red-800">Fee Payment Due</h3>
-                    <p className="text-red-600 text-sm mt-1">
-                        You have an outstanding balance of ₹45,000 for the current semester. Please clear it before 30th Nov to avoid late fees.
-                    </p>
-                    <div className="mt-3 flex gap-3">
-                        <button
-                            onClick={() => navigate('/dashboard/fees')}
-                            className="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 transition-colors"
-                        >
-                            Pay Now
-                        </button>
-                        <button
-                            onClick={() => navigate('/dashboard/fees')}
-                            className="px-4 py-2 bg-white text-red-600 text-sm font-bold rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
-                        >
-                            View Details
-                        </button>
+            {/* Fee Payment Alert - Only show if pending > 0 */}
+            {feeData[1].value > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-4">
+                    <div className="bg-red-100 p-2 rounded-lg text-red-600">
+                        <AlertCircle size={24} />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-red-800">Fee Payment Due</h3>
+                        <p className="text-red-600 text-sm mt-1">
+                            You have an outstanding balance of ₹{feeData[1].value.toLocaleString()} for the current semester. Please clear it before 30th Nov to avoid late fees.
+                        </p>
+                        <div className="mt-3 flex gap-3">
+                            <button
+                                onClick={() => navigate('/dashboard/fees')}
+                                className="px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 transition-colors"
+                            >
+                                Pay Now
+                            </button>
+                            <button
+                                onClick={() => navigate('/dashboard/fees')}
+                                className="px-4 py-2 bg-white text-red-600 text-sm font-bold rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
+                            >
+                                View Details
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -149,15 +151,22 @@ const ParentDashboard = () => {
                     <div className="flex justify-between items-start">
                         <div>
                             <p className="text-gray-400 text-sm">Fee Pending</p>
-                            <h3 className="text-3xl font-bold mt-1">₹45,000</h3>
+                            <h3 className="text-3xl font-bold mt-1">₹{feeData[1].value.toLocaleString()}</h3>
                         </div>
-                        <div className="p-2 bg-red-500/20 rounded-lg text-red-400">
-                            <DollarSign size={24} />
+                        <div className={`p-2 rounded-lg ${feeData[1].value > 0 ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}`}>
+                            {feeData[1].value > 0 ? <DollarSign size={24} /> : <CheckCircle size={24} />}
                         </div>
                     </div>
-                    <button className="mt-4 w-full py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded hover:bg-red-500/30 transition-colors">
-                        PAY NOW
-                    </button>
+                    {feeData[1].value > 0 ? (
+                        <button className="mt-4 w-full py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded hover:bg-red-500/30 transition-colors">
+                            PAY NOW
+                        </button>
+                    ) : (
+                        <div className="mt-4 text-green-400 text-sm flex items-center gap-2">
+                            <CheckCircle size={16} />
+                            Fully Paid
+                        </div>
+                    )}
                 </div>
 
                 <div className="bg-[#1e293b] p-6 rounded-xl border border-gray-700 shadow-lg text-white">
