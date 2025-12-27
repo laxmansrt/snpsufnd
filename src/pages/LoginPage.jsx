@@ -72,7 +72,7 @@ const LoginPage = () => {
 
                     <div className="relative z-10">
                         <div className="mb-10">
-                            <img src="/assets/logo.png" alt="Sapthagiri NPS University" className="h-20 w-64 mb-6 object-contain" />
+                            <img src="/assets/logo.png" alt="Sapthagiri NPS University" className="h-40 w-auto mb-6 object-contain bg-white p-2 rounded-xl shadow-lg" />
                             <h1 className="text-4xl font-bold font-serif mb-2 text-white">Sapthagiri NPS University</h1>
                             <p className="text-gray-400 text-lg">Excellence in Education Since 2001</p>
                         </div>

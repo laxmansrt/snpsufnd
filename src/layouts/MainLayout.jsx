@@ -9,7 +9,7 @@ const MainLayout = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-panel border-b-0 rounded-none">
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
                     <Link to="/" className="flex items-center gap-3 group">
-                        <img src="/assets/logo.png" alt="SNPSU Logo" className="h-12 w-auto object-contain group-hover:scale-105 transition-transform" />
+                        <img src="/assets/logo.png" alt="SNPSU Logo" className="h-40 w-auto object-contain group-hover:scale-105 transition-transform" />
                         <div className="flex flex-col">
                             <span className="text-xl font-bold font-serif tracking-tight text-[hsl(var(--primary))]">Sapthagiri NPS</span>
                             <span className="text-xs font-medium tracking-widest text-[hsl(var(--text-muted))] uppercase">University</span>
