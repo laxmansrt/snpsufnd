@@ -83,11 +83,13 @@ const ResultsPage = () => {
 
         try {
             setIsPublishing(true);
+            console.log('Publishing results for:', { branch: selectedBranch, semester: selectedSemester });
             const response = await marksAPI.publishResults(selectedBranch, selectedSemester);
-            alert(response.message);
+            console.log('Publish Response:', response);
+            alert(response.message || 'Results published successfully!');
         } catch (error) {
             console.error('Publish error:', error);
-            alert(error.message || 'Failed to publish results');
+            alert(error.message || 'Failed to publish results. Please ensure marks are uploaded for this selection.');
         } finally {
             setIsPublishing(false);
         }

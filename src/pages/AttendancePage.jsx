@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { attendanceAPI } from '../services/attendanceService';
 import { Calendar, Users, CheckCircle, XCircle, Clock, AlertCircle, Save, Download } from 'lucide-react';
 import clsx from 'clsx';
+import * as XLSX from 'xlsx';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const AttendancePage = () => {
@@ -94,6 +95,32 @@ const AttendancePage = () => {
             setLoading(false);
         }
     };
+
+    const handleExport = () => {
+        if (!report || !report.records) {
+            alert('No report data available to export.');
+            return;
+        }
+
+        const exportData = report.records.map(record => ({
+            'Date': new Date(record.date).toLocaleDateString(),
+            'Subject': record.subject,
+            'Status': record.status.charAt(0).toUpperCase() + record.status.slice(1),
+            'Student USN': record.studentUsn || 'N/A'
+        }));
+
+        const ws = XLSX.utils.json_to_sheet(exportData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Attendance Report');
+        XLSX.writeFile(wb, `Attendance_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    };
+
+    // Auto-load report for parents
+    useEffect(() => {
+        if (user?.role === 'parent' && user?.parentData?.childUsn && activeTab === 'view') {
+            loadReport({ studentUsn: user.parentData.childUsn });
+        }
+    }, [user, activeTab]);
 
     const handleMarkAttendance = (usn, status) => {
         setAttendance(prev => ({
@@ -348,7 +375,10 @@ const AttendancePage = () => {
                             <div className="bg-[#1e293b] rounded-xl border border-gray-700 shadow-lg overflow-hidden">
                                 <div className="p-6 border-b border-gray-700 flex justify-between items-center">
                                     <h3 className="text-lg font-bold text-white">Attendance Logs</h3>
-                                    <button className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                                    <button
+                                        onClick={handleExport}
+                                        className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+                                    >
                                         <Download size={16} />
                                         Export Report
                                     </button>

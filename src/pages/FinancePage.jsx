@@ -1,5 +1,5 @@
-import React from 'react';
-import { DollarSign, TrendingUp, TrendingDown, Download, Plus, CreditCard } from 'lucide-react';
+import React, { useState } from 'react';
+import { DollarSign, TrendingUp, TrendingDown, Download, Plus, CreditCard, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import * as XLSX from 'xlsx';
 
@@ -31,12 +31,42 @@ const FinancePage = () => {
 
     const COLORS = ['#d4af37', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
 
-    const transactions = [
+    const [transactions, setTransactions] = useState([
         { id: 1, student: 'Rahul Sharma', type: 'Tuition Fee', amount: 85000, date: '2023-11-20', status: 'Completed', mode: 'Online' },
         { id: 2, student: 'Priya Patel', type: 'Hostel Fee', amount: 45000, date: '2023-11-19', status: 'Completed', mode: 'UPI' },
         { id: 3, student: 'Amit Kumar', type: 'Exam Fee', amount: 2500, date: '2023-11-18', status: 'Pending', mode: 'Cash' },
         { id: 4, student: 'Sneha Gupta', type: 'Library Fee', amount: 1000, date: '2023-11-17', status: 'Completed', mode: 'Card' },
-    ];
+    ]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newTransaction, setNewTransaction] = useState({
+        student: '',
+        type: 'Tuition Fee',
+        amount: '',
+        date: new Date().toISOString().split('T')[0],
+        status: 'Completed',
+        mode: 'Online'
+    });
+
+    const handleRecordTransaction = (e) => {
+        e.preventDefault();
+        const transaction = {
+            ...newTransaction,
+            id: transactions.length + 1,
+            amount: parseFloat(newTransaction.amount)
+        };
+        setTransactions([transaction, ...transactions]);
+        setIsModalOpen(false);
+        alert('Transaction recorded successfully!');
+        setNewTransaction({
+            student: '',
+            type: 'Tuition Fee',
+            amount: '',
+            date: new Date().toISOString().split('T')[0],
+            status: 'Completed',
+            mode: 'Online'
+        });
+    };
 
     const handleDownloadReport = () => {
         const worksheet = XLSX.utils.json_to_sheet(transactions);
@@ -61,7 +91,10 @@ const FinancePage = () => {
                         <Download size={18} />
                         <span>Download Report</span>
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-[#d4af37] text-[#0f172a] rounded-lg hover:bg-[#c5a028] transition-colors">
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#d4af37] text-[#0f172a] rounded-lg hover:bg-[#c5a028] transition-colors"
+                    >
                         <Plus size={18} />
                         <span>Record Transaction</span>
                     </button>
@@ -176,6 +209,97 @@ const FinancePage = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Record Transaction Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-[#1e293b] w-full max-w-lg rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
+                        <div className="p-6 border-b border-gray-700 bg-[#0f172a] flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-white">Record Transaction</h2>
+                            <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleRecordTransaction} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Student Name</label>
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                    value={newTransaction.student}
+                                    onChange={(e) => setNewTransaction({ ...newTransaction, student: e.target.value })}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Type</label>
+                                    <select
+                                        className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                        value={newTransaction.type}
+                                        onChange={(e) => setNewTransaction({ ...newTransaction, type: e.target.value })}
+                                    >
+                                        <option value="Tuition Fee">Tuition Fee</option>
+                                        <option value="Hostel Fee">Hostel Fee</option>
+                                        <option value="Exam Fee">Exam Fee</option>
+                                        <option value="Library Fee">Library Fee</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Amount</label>
+                                    <input
+                                        type="number"
+                                        required
+                                        className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                        value={newTransaction.amount}
+                                        onChange={(e) => setNewTransaction({ ...newTransaction, amount: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Date</label>
+                                    <input
+                                        type="date"
+                                        required
+                                        className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                        value={newTransaction.date}
+                                        onChange={(e) => setNewTransaction({ ...newTransaction, date: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Payment Mode</label>
+                                    <select
+                                        className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                        value={newTransaction.mode}
+                                        onChange={(e) => setNewTransaction({ ...newTransaction, mode: e.target.value })}
+                                    >
+                                        <option value="Online">Online</option>
+                                        <option value="UPI">UPI</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Card">Card</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 flex justify-end gap-3 border-t border-gray-700">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-6 py-2 bg-[#d4af37] text-[#0f172a] font-bold rounded-lg hover:bg-[#c5a028] transition-colors"
+                                >
+                                    Record Transaction
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

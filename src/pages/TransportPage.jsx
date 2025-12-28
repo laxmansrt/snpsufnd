@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Bus, MapPin, Clock, Phone, User, AlertCircle } from 'lucide-react';
+import { Bus, MapPin, Clock, Phone, User, AlertCircle, Send } from 'lucide-react';
+import { transportAPI } from '../services/transportService';
+import { useAuth } from '../context/AuthContext';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const TransportPage = () => {
     const [routes] = useState([
@@ -49,7 +52,36 @@ const TransportPage = () => {
         },
     ]);
 
+    const { user } = useAuth();
     const [selectedRoute, setSelectedRoute] = useState(null);
+    const [applying, setApplying] = useState(false);
+
+    const handleApply = async (route) => {
+        if (user?.role !== 'student') {
+            alert('Only students can apply for transport.');
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to apply for ${route.routeName}?`)) {
+            return;
+        }
+
+        try {
+            setApplying(true);
+            await transportAPI.submitApplication({
+                routeId: route._id,
+                routeName: route.routeName,
+                routeNumber: route.routeNumber,
+                pickupPoint: route.stops[0].stopName, // Default to first stop
+            });
+            alert('Transport application submitted successfully! You can check status in your dashboard.');
+        } catch (error) {
+            console.error('Apply error:', error);
+            alert(error.message || 'Failed to submit application');
+        } finally {
+            setApplying(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -153,6 +185,21 @@ const TransportPage = () => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Apply Button */}
+                                {user?.role === 'student' && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleApply(route);
+                                        }}
+                                        disabled={applying}
+                                        className="w-full py-3 bg-[#d4af37] hover:bg-[#c5a028] text-[#111827] font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+                                    >
+                                        {applying ? <LoadingSpinner size="sm" color="white" /> : <Send size={20} />}
+                                        {applying ? 'Submitting...' : 'Apply for this Route'}
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
