@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap, X, PlayCircle, Video } from 'lucide-react';
+import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap, X, PlayCircle, Video, Image as ImageIcon } from 'lucide-react';
 import campus1 from '../assets/campus1.png';
 import campus2 from '../assets/campus2.png';
 import campus3 from '../assets/campus3.png';
@@ -12,6 +12,7 @@ import campus8 from '../assets/campus8.png';
 import feature1 from '../assets/feature_section_1.png';
 import feature2 from '../assets/feature_section_2.png';
 import logoBg from '../assets/school-logo-bg.jpg';
+import dashboardPreview from '../assets/dashboard_preview.png';
 import AIChat from '../components/AIChat';
 import { API_URL } from '../services/config';
 
