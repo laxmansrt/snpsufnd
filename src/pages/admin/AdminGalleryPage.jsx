@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Upload, Video, Image as ImageIcon, Trash2, Plus, X, Link as LinkIcon, Save, AlertCircle, CheckCircle } from 'lucide-react';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import axios from 'axios';
+import { API_URL } from '../../services/config';
 
 const AdminGalleryPage = () => {
     const { token } = useAuth();
@@ -29,7 +30,7 @@ const AdminGalleryPage = () => {
 
     const fetchGallery = async () => {
         try {
-            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/gallery`);
+            const response = await axios.get(`${API_URL}/gallery`);
             setItems(response.data);
         } catch (err) {
             console.error('Error fetching gallery:', err);
@@ -58,7 +59,7 @@ const AdminGalleryPage = () => {
 
         try {
             await axios.post(
-                `${import.meta.env.VITE_API_URL}/api/gallery`,
+                `${API_URL}/gallery`,
                 formData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -78,7 +79,7 @@ const AdminGalleryPage = () => {
 
         try {
             await axios.delete(
-                `${import.meta.env.VITE_API_URL}/api/gallery/${id}`,
+                `${API_URL}/gallery/${id}`,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setItems(items.filter(item => item._id !== id));

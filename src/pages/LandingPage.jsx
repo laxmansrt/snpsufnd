@@ -11,9 +11,9 @@ import campus7 from '../assets/campus7.png';
 import campus8 from '../assets/campus8.png';
 import feature1 from '../assets/feature_section_1.png';
 import feature2 from '../assets/feature_section_2.png';
-import dashboardPreview from '../assets/dashboard_preview.png';
 import logoBg from '../assets/school-logo-bg.jpg';
 import AIChat from '../components/AIChat';
+import { API_URL } from '../services/config';
 
 const LandingPage = () => {
     const [formData, setFormData] = useState({
@@ -59,7 +59,7 @@ const LandingPage = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/public/stats`);
+                const response = await fetch(`${API_URL}/public/stats`);
                 const data = await response.json();
 
                 const targetStats = {
@@ -115,12 +115,11 @@ const LandingPage = () => {
         fetchStats();
     }, []);
 
-    // Fetch Gallery Items
     useEffect(() => {
         const fetchGallery = async () => {
             setLoadingGallery(true);
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gallery`);
+                const response = await fetch(`${API_URL}/gallery`);
                 const dynamicData = await response.json();
 
                 // Static campus items from the landing page
