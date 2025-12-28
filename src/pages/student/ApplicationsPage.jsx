@@ -59,6 +59,19 @@ const ApplicationsPage = () => {
 
     const [routes, setRoutes] = useState([]);
 
+    const FALLBACK_ROUTES = [
+        {
+            _id: '1',
+            routeNumber: 'R01',
+            routeName: 'BTM Layout - College',
+        },
+        {
+            _id: '2',
+            routeNumber: 'R02',
+            routeName: 'Marathahalli - College',
+        }
+    ];
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -71,7 +84,14 @@ const ApplicationsPage = () => {
                 transportAPI.getMyApplication(),
                 hostelAPI.getMyApplication()
             ]);
-            setRoutes(transportRoutes);
+
+            // Use fallback routes if API returns empty array, otherwise use API data
+            if (transportRoutes && transportRoutes.length > 0) {
+                setRoutes(transportRoutes);
+            } else {
+                setRoutes(FALLBACK_ROUTES);
+            }
+
             setMyApplications({ transport: transportApp, hostel: hostelApp });
         } catch (error) {
             console.error('Error fetching application data:', error);

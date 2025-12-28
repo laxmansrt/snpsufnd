@@ -6,7 +6,8 @@ import axios from 'axios';
 import { API_URL } from '../../services/config';
 
 const AdminGalleryPage = () => {
-    const { token } = useAuth();
+    const { user } = useAuth();
+    const token = user?.token;
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
