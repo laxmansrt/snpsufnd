@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, IndianRupee, BookOpen, UserCheck, TrendingUp, AlertCircle, Plus, Bell, X, MessageSquare, Download, Upload, Video } from 'lucide-react';
+import { Users, IndianRupee, BookOpen, UserCheck, TrendingUp, AlertCircle, Plus, Bell, X, MessageSquare, Download, Upload, Video, Image as ImageIcon } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import * as XLSX from 'xlsx';
 import { authAPI, announcementAPI } from '../../services/api';
@@ -201,6 +201,13 @@ const AdminDashboard = () => {
                     >
                         <BookOpen size={18} />
                         <span>Create Exam</span>
+                    </Link>
+                    <Link
+                        to="/dashboard/admin/gallery"
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                    >
+                        <ImageIcon size={18} />
+                        <span>Gallery</span>
                     </Link>
                 </div>
             </div>

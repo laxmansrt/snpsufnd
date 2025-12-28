@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap } from 'lucide-react';
+import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap, X, PlayCircle, Video } from 'lucide-react';
 import campus1 from '../assets/campus1.png';
 import campus2 from '../assets/campus2.png';
 import campus3 from '../assets/campus3.png';
@@ -32,6 +32,9 @@ const LandingPage = () => {
     const [darkMode, setDarkMode] = useState(false);
     const [dailyTip, setDailyTip] = useState('');
     const [showTour, setShowTour] = useState(false);
+    const [galleryItems, setGalleryItems] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [loadingGallery, setLoadingGallery] = useState(false);
 
     const campusImages = [
         campus1,
@@ -111,6 +114,39 @@ const LandingPage = () => {
 
         fetchStats();
     }, []);
+
+    // Fetch Gallery Items
+    useEffect(() => {
+        const fetchGallery = async () => {
+            setLoadingGallery(true);
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/gallery`);
+                const dynamicData = await response.json();
+
+                // Static campus items from the landing page
+                const staticGalleryItems = [
+                    { _id: 'static-1', title: 'Main Campus View', type: 'image', category: 'Campus', url: campus1, description: 'Iconic main building view of Sapthagiri NPS University.' },
+                    { _id: 'static-2', title: 'Library & Learning Center', type: 'image', category: 'Campus', url: campus2, description: 'State-of-the-art library facilities for students.' },
+                    { _id: 'static-3', title: 'Auditorium', type: 'image', category: 'Campus', url: campus3, description: 'Spacious auditorium for cultural events and seminars.' },
+                    { _id: 'static-4', title: 'Engineering Block', type: 'image', category: 'Campus', url: campus4, description: 'Dedicated hub for engineering and technological research.' },
+                    { _id: 'static-5', title: 'Student Lounge', type: 'image', category: 'Campus', url: campus5, description: 'Modern spaces designed for student collaboration and comfort.' },
+                    { _id: 'static-6', title: 'Sports Complex', type: 'image', category: 'Campus', url: campus6, description: 'Full-scale sports facilities for athletics and recreation.' },
+                    { _id: 'static-7', title: 'Medical Wing', type: 'image', category: 'Campus', url: campus7, description: 'Advanced teaching and clinical facilities for medical sciences.' },
+                    { _id: 'static-8', title: 'Computing Center', type: 'image', category: 'Campus', url: campus8, description: 'Cutting-edge computing labs with high-speed connectivity.' },
+                ];
+
+                setGalleryItems([...staticGalleryItems, ...dynamicData]);
+            } catch (error) {
+                console.error('Error fetching gallery:', error);
+            } finally {
+                setLoadingGallery(false);
+            }
+        };
+
+        if (showTour) {
+            fetchGallery();
+        }
+    }, [showTour]);
 
     // Daily AI tip
     useEffect(() => {
@@ -623,30 +659,131 @@ const LandingPage = () => {
             {showTour && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
                     <div
-                        className="absolute inset-0 bg-black/80 backdrop-blur-sm animate-fade-in"
+                        className="absolute inset-0 bg-black/90 backdrop-blur-md animate-fade-in"
                         onClick={() => setShowTour(false)}
                     ></div>
-                    <div className="relative w-full max-w-6xl h-[80vh] bg-gray-900 rounded-3xl overflow-hidden border border-gray-700 shadow-2xl animate-scale-in">
+                    <div className="relative w-full max-w-6xl h-[85vh] bg-[#0f1d35] rounded-3xl overflow-hidden border border-white/10 shadow-2xl animate-scale-in flex flex-col">
                         {/* Modal Header */}
-                        <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-black/80 to-transparent z-10 flex items-center justify-between px-6">
+                        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/20">
                             <div className="flex items-center gap-3">
-                                <Globe className="text-[#d4af37]" />
-                                <h3 className="text-white font-bold">3D Campus Tour - Satellite View</h3>
+                                <div className="p-2 bg-[#d4af37]/20 rounded-lg">
+                                    <Globe className="text-[#d4af37]" />
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-bold text-xl">Dynamic Campus Tour</h3>
+                                    <p className="text-xs text-gray-400">Experience our campus through photos and event videos</p>
+                                </div>
                             </div>
-                            <button
-                                onClick={() => setShowTour(false)}
-                                className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
-                            >
-                                <X size={20} />
-                            </button>
+                            <div className="flex items-center gap-4">
+                                {/* Category Filters */}
+                                <div className="hidden md:flex items-center gap-2 bg-gray-900/50 p-1 rounded-xl border border-white/10">
+                                    {['All', 'Function', 'Campus', 'Sports', 'Event'].map(cat => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setSelectedCategory(cat)}
+                                            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-[#d4af37] text-[#0a1628]' : 'text-gray-400 hover:text-white'}`}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                                <button
+                                    onClick={() => setShowTour(false)}
+                                    className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
                         </div>
-                        {/* Map Iframe */}
-                        <iframe
-                            src="https://maps.google.com/maps?q=Sapthagiri+NPS+University+Bengaluru&t=k&z=19&ie=UTF8&iwloc=&output=embed"
-                            className="w-full h-full border-none"
-                            allowFullScreen
-                            loading="lazy"
-                        ></iframe>
+
+                        {/* Modal Content */}
+                        <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                            {loadingGallery ? (
+                                <div className="h-full flex flex-col items-center justify-center gap-4">
+                                    <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
+                                    <p className="text-gray-400 animate-pulse">Loading amazing memories...</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {galleryItems
+                                        .filter(item => selectedCategory === 'All' || item.category === selectedCategory)
+                                        .map((item, index) => (
+                                            <div
+                                                key={item._id}
+                                                className="group relative bg-[#1a2942] rounded-2xl overflow-hidden border border-white/10 hover:border-[#d4af37]/50 transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#d4af37]/10"
+                                                style={{ animationDelay: `${index * 100}ms` }}
+                                            >
+                                                <div className="aspect-video relative overflow-hidden">
+                                                    {item.type === 'image' ? (
+                                                        <img
+                                                            src={item.url}
+                                                            alt={item.title}
+                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                                                            <PlayCircle className="text-[#d4af37]/80 group-hover:text-[#d4af37] transition-colors" size={64} />
+                                                            {/* Thumbnail placeholder for video */}
+                                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
+                                                                <span className="text-white font-bold text-sm flex items-center gap-2">
+                                                                    <Video size={16} /> Play Video
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Category Badge */}
+                                                    <div className="absolute top-4 left-4">
+                                                        <span className="px-3 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold rounded-full uppercase tracking-wider border border-white/10">
+                                                            {item.category}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Action Overlay */}
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        {item.type === 'video' ? (
+                                                            <a
+                                                                href={item.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="px-6 py-2 bg-[#d4af37] text-[#0a1628] rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+                                                            >
+                                                                Watch Now
+                                                            </a>
+                                                        ) : (
+                                                            <button
+                                                                className="px-6 py-2 bg-white text-[#0a1628] rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+                                                                onClick={() => window.open(item.url, '_blank')}
+                                                            >
+                                                                View Full
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div className="p-4 space-y-1">
+                                                    <h4 className="text-white font-bold group-hover:text-[#d4af37] transition-colors line-clamp-1">{item.title}</h4>
+                                                    <p className="text-gray-400 text-xs line-clamp-2">{item.description}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                    {galleryItems.filter(item => selectedCategory === 'All' || item.category === selectedCategory).length === 0 && (
+                                        <div className="col-span-full py-20 text-center">
+                                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+                                                <ImageIcon className="text-gray-600" size={32} />
+                                            </div>
+                                            <h3 className="text-white font-bold text-lg">No Items Found</h3>
+                                            <p className="text-gray-400 text-sm">We are currently updating this category with more memories.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-4 border-t border-white/10 bg-black/40 text-center">
+                            <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Sapthagiri NPS University • Official Digital Archive</p>
+                        </div>
                     </div>
                 </div>
             )}

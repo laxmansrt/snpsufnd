@@ -32,6 +32,7 @@ import CreateExamPage from './pages/admin/CreateExamPage';
 import TakeExamPage from './pages/student/TakeExamPage';
 import ApplicationsPage from './pages/student/ApplicationsPage';
 import ManageApplicationsPage from './pages/admin/ManageApplicationsPage';
+import AdminGalleryPage from './pages/admin/AdminGalleryPage';
 import PlaceholderPage from './components/PlaceholderPage';
 import { Users, BookOpen, Calendar, FileText, DollarSign, Bus, Home, Bell, Settings } from 'lucide-react';
 
@@ -91,6 +92,7 @@ function App() {
               <Route path="admin" element={<AdminDashboard />} />
               <Route path="admin/bulk-upload" element={<BulkUploadPage />} />
               <Route path="admin/meetings" element={<MeetingPage />} />
+              <Route path="admin/gallery" element={<AdminGalleryPage />} />
               <Route path="parent" element={<ParentDashboard />} />
               <Route path="faculty" element={<FacultyDashboard />} />
               <Route path="lost-found" element={<LostFound />} />
