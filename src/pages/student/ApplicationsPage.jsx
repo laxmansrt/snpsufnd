@@ -61,12 +61,12 @@ const ApplicationsPage = () => {
 
     const FALLBACK_ROUTES = [
         {
-            _id: '1',
+            _id: '507f1f77bcf86cd799439011',
             routeNumber: 'R01',
             routeName: 'BTM Layout - College',
         },
         {
-            _id: '2',
+            _id: '507f1f77bcf86cd799439012',
             routeNumber: 'R02',
             routeName: 'Marathahalli - College',
         }
