@@ -95,6 +95,8 @@ const ApplicationsPage = () => {
             setMyApplications({ transport: transportApp, hostel: hostelApp });
         } catch (error) {
             console.error('Error fetching application data:', error);
+            // Ensure fallback routes are available even if API fails
+            setRoutes(FALLBACK_ROUTES);
         } finally {
             setLoading(false);
         }
@@ -203,8 +205,9 @@ const ApplicationsPage = () => {
                             <form onSubmit={handleTransportSubmit} className="p-6 space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Phone Number</label>
+                                        <label htmlFor="phone" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Phone Number</label>
                                         <input
+                                            id="phone"
                                             type="text"
                                             required
                                             value={transportForm.phone}
@@ -213,8 +216,9 @@ const ApplicationsPage = () => {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Semester</label>
+                                        <label htmlFor="semester" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Semester</label>
                                         <input
+                                            id="semester"
                                             type="number"
                                             required
                                             value={transportForm.semester}
@@ -224,8 +228,9 @@ const ApplicationsPage = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Department</label>
+                                    <label htmlFor="dept" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Department</label>
                                     <input
+                                        id="dept"
                                         type="text"
                                         required
                                         value={transportForm.department}
@@ -234,8 +239,9 @@ const ApplicationsPage = () => {
                                     />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Select Route</label>
+                                    <label htmlFor="route" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Select Route</label>
                                     <select
+                                        id="route"
                                         required
                                         value={transportForm.routeId}
                                         onChange={(e) => setTransportForm({ ...transportForm, routeId: e.target.value })}
@@ -248,8 +254,9 @@ const ApplicationsPage = () => {
                                     </select>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Pickup Point</label>
+                                    <label htmlFor="pickup" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Pickup Point</label>
                                     <input
+                                        id="pickup"
                                         type="text"
                                         required
                                         placeholder="Enter your nearest stop"
@@ -277,8 +284,9 @@ const ApplicationsPage = () => {
                             <form onSubmit={handleHostelSubmit} className="p-6 space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Student Phone</label>
+                                        <label htmlFor="h-phone" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Student Phone</label>
                                         <input
+                                            id="h-phone"
                                             type="text"
                                             required
                                             value={hostelForm.phone}
@@ -287,8 +295,9 @@ const ApplicationsPage = () => {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Semester</label>
+                                        <label htmlFor="h-semester" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Semester</label>
                                         <input
+                                            id="h-semester"
                                             type="number"
                                             required
                                             value={hostelForm.semester}
@@ -298,8 +307,9 @@ const ApplicationsPage = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-xs font-bold text-gray-500 uppercase">Department</label>
+                                    <label htmlFor="h-dept" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Department</label>
                                     <input
+                                        id="h-dept"
                                         type="text"
                                         required
                                         value={hostelForm.department}
@@ -310,8 +320,9 @@ const ApplicationsPage = () => {
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Room Type</label>
+                                        <label htmlFor="room" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Room Type</label>
                                         <select
+                                            id="room"
                                             value={hostelForm.roomPreference}
                                             onChange={(e) => setHostelForm({ ...hostelForm, roomPreference: e.target.value })}
                                             className="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
@@ -323,8 +334,9 @@ const ApplicationsPage = () => {
                                         </select>
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Block Preference</label>
+                                        <label htmlFor="block" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Block Preference</label>
                                         <select
+                                            id="block"
                                             value={hostelForm.blockPreference}
                                             onChange={(e) => setHostelForm({ ...hostelForm, blockPreference: e.target.value })}
                                             className="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
@@ -337,8 +349,9 @@ const ApplicationsPage = () => {
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Guardian Name</label>
+                                        <label htmlFor="g-name" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Guardian Name</label>
                                         <input
+                                            id="g-name"
                                             type="text"
                                             required
                                             value={hostelForm.guardianName}
@@ -347,8 +360,9 @@ const ApplicationsPage = () => {
                                         />
                                     </div>
                                     <div className="space-y-1">
-                                        <label className="text-xs font-bold text-gray-500 uppercase">Guardian Phone</label>
+                                        <label htmlFor="g-phone" className="text-xs font-bold text-gray-500 uppercase cursor-pointer">Guardian Phone</label>
                                         <input
+                                            id="g-phone"
                                             type="text"
                                             required
                                             value={hostelForm.guardianPhone}
