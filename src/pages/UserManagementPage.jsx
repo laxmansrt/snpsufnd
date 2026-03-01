@@ -17,7 +17,8 @@ const UserManagementPage = () => {
     const [newUser, setNewUser] = useState({
         name: '', email: '', password: 'password123', role: 'student',
         studentData: { usn: '', department: 'CSE', semester: '1' },
-        facultyData: { employeeId: '', department: 'CSE', designation: 'Assistant Professor' }
+        facultyData: { employeeId: '', department: 'CSE', designation: 'Assistant Professor' },
+        hrdData: { employeeId: '', department: 'Placement Desk' }
     });
 
     const tabs = [
@@ -25,6 +26,7 @@ const UserManagementPage = () => {
         { id: 'faculty', label: 'Faculty' },
         { id: 'parents', label: 'Parents' },
         { id: 'staff', label: 'Staff' },
+        { id: 'hrd', label: 'HRD Team' },
     ];
 
     useEffect(() => { fetchUsers(); }, []);
@@ -53,6 +55,11 @@ const UserManagementPage = () => {
                     id: u._id, name: u.name, email: u.email,
                     employeeId: u.facultyData?.employeeId || 'N/A', department: u.facultyData?.department || 'N/A',
                     designation: u.facultyData?.designation || 'N/A', status: 'Active', raw: u,
+                })),
+                hrd: allUsers.filter(u => u.role === 'hrd').map(u => ({
+                    id: u._id, name: u.name, email: u.email,
+                    employeeId: u.hrdData?.employeeId || 'N/A', department: u.hrdData?.department || 'Placement Desk',
+                    designation: 'HRD Staff', status: 'Active', raw: u,
                 })),
             };
             setUsers(organizedUsers);
@@ -96,6 +103,7 @@ const UserManagementPage = () => {
             role: user.raw?.role || 'student', phone: user.raw?.phone || '',
             studentData: user.raw?.studentData || {},
             facultyData: user.raw?.facultyData || {},
+            hrdData: user.raw?.hrdData || {},
         });
         setIsEditModalOpen(true);
     };
@@ -291,53 +299,68 @@ const UserManagementPage = () => {
                                         <option value="student">Student</option>
                                         <option value="faculty">Faculty</option>
                                         <option value="admin">Admin</option>
+                                        <option value="hrd">HRD</option>
                                     </select>
+                                    {newUser.role === 'student' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-1">USN</label>
+                                                <input type="text" required className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                                    value={newUser.studentData.usn} onChange={(e) => setNewUser({ ...newUser, studentData: { ...newUser.studentData, usn: e.target.value } })} />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-1">Department</label>
+                                                <select className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                                    value={newUser.studentData.department} onChange={(e) => setNewUser({ ...newUser, studentData: { ...newUser.studentData, department: e.target.value } })}>
+                                                    <option value="CSE">CSE</option><option value="ISE">ISE</option><option value="ECE">ECE</option><option value="EEE">EEE</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-1">Semester</label>
+                                                <select className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                                    value={newUser.studentData.semester} onChange={(e) => setNewUser({ ...newUser, studentData: { ...newUser.studentData, semester: e.target.value } })}>
+                                                    {[1, 2, 3, 4, 5, 6, 7, 8].map(s => <option key={s} value={s}>{s}</option>)}
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
+                                    {newUser.role === 'faculty' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-1">Employee ID</label>
+                                                <input type="text" required className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                                    value={newUser.facultyData.employeeId} onChange={(e) => setNewUser({ ...newUser, facultyData: { ...newUser.facultyData, employeeId: e.target.value } })} />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-1">Department</label>
+                                                <select className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                                    value={newUser.facultyData.department} onChange={(e) => setNewUser({ ...newUser, facultyData: { ...newUser.facultyData, department: e.target.value } })}>
+                                                    <option value="CSE">CSE</option><option value="ISE">ISE</option><option value="ECE">ECE</option><option value="EEE">EEE</option>
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
+                                    {newUser.role === 'hrd' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-1">Employee ID</label>
+                                                <input type="text" required className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                                    value={newUser.hrdData.employeeId} onChange={(e) => setNewUser({ ...newUser, hrdData: { ...newUser.hrdData, employeeId: e.target.value } })} />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-400 mb-1">Department</label>
+                                                <input type="text" className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                                    value={newUser.hrdData.department} onChange={(e) => setNewUser({ ...newUser, hrdData: { ...newUser.hrdData, department: e.target.value } })} />
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
-                                {newUser.role === 'student' ? (
-                                    <>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-400 mb-1">USN</label>
-                                            <input type="text" required className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
-                                                value={newUser.studentData.usn} onChange={(e) => setNewUser({ ...newUser, studentData: { ...newUser.studentData, usn: e.target.value } })} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-400 mb-1">Department</label>
-                                            <select className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
-                                                value={newUser.studentData.department} onChange={(e) => setNewUser({ ...newUser, studentData: { ...newUser.studentData, department: e.target.value } })}>
-                                                <option value="CSE">CSE</option><option value="ISE">ISE</option><option value="ECE">ECE</option><option value="EEE">EEE</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-400 mb-1">Semester</label>
-                                            <select className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
-                                                value={newUser.studentData.semester} onChange={(e) => setNewUser({ ...newUser, studentData: { ...newUser.studentData, semester: e.target.value } })}>
-                                                {[1, 2, 3, 4, 5, 6, 7, 8].map(s => <option key={s} value={s}>{s}</option>)}
-                                            </select>
-                                        </div>
-                                    </>
-                                ) : newUser.role === 'faculty' && (
-                                    <>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-400 mb-1">Employee ID</label>
-                                            <input type="text" required className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
-                                                value={newUser.facultyData.employeeId} onChange={(e) => setNewUser({ ...newUser, facultyData: { ...newUser.facultyData, employeeId: e.target.value } })} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-400 mb-1">Department</label>
-                                            <select className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
-                                                value={newUser.facultyData.department} onChange={(e) => setNewUser({ ...newUser, facultyData: { ...newUser.facultyData, department: e.target.value } })}>
-                                                <option value="CSE">CSE</option><option value="ISE">ISE</option><option value="ECE">ECE</option><option value="EEE">EEE</option>
-                                            </select>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                            <div className="pt-4 flex justify-end gap-3 border-t border-gray-700">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">Cancel</button>
-                                <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-[#d4af37] text-[#0f172a] font-bold rounded-lg hover:bg-[#c5a028] transition-colors disabled:opacity-50">
-                                    {isSubmitting ? 'Creating...' : 'Create User'}
-                                </button>
-                            </div>
+                                <div className="pt-4 flex justify-end gap-3 border-t border-gray-700">
+                                    <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors">Cancel</button>
+                                    <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-[#d4af37] text-[#0f172a] font-bold rounded-lg hover:bg-[#c5a028] transition-colors disabled:opacity-50">
+                                        {isSubmitting ? 'Creating...' : 'Create User'}
+                                    </button>
+                                </div>
                         </form>
                     </div>
                 </div>
@@ -375,6 +398,7 @@ const UserManagementPage = () => {
                                     <option value="faculty">Faculty</option>
                                     <option value="admin">Admin</option>
                                     <option value="parent">Parent</option>
+                                    <option value="hrd">HRD</option>
                                 </select>
                             </div>
                             <div className="pt-4 flex justify-end gap-3 border-t border-gray-700">

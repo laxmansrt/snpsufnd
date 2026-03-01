@@ -19,7 +19,8 @@ import {
     HelpCircle,
     ClipboardList,
     PenTool,
-    MessageCircle
+    MessageCircle,
+    Briefcase
 } from 'lucide-react';
 import clsx from 'clsx';
 import AIChat from '../components/AIChat';
@@ -106,17 +107,21 @@ const DashboardLayout = () => {
             { icon: Bell, label: 'Messages', path: '/dashboard/messages' },
         ];
 
+        const hrd = [
+            { icon: Briefcase, label: 'Placements', path: '/dashboard/placements' },
+            { icon: Users, label: 'Student Profiles', path: '/dashboard/students' },
+            { icon: Bell, label: 'Announcements', path: '/dashboard/announcements' },
+            { icon: Settings, label: 'Settings', path: '/dashboard/settings' },
+        ];
+
         switch (role) {
             case 'admin': return [...common, ...admin];
             case 'faculty': return [...common, ...faculty];
             case 'student': return [...common, ...student];
+            case 'hrd': return [...common, ...hrd];
             case 'parent': return [
                 { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-                { icon: Users, label: 'Child Progress', path: '/dashboard/child' },
-                { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
-                { icon: DollarSign, label: 'Fee Payment', path: '/dashboard/fees' },
-                { icon: Bus, label: 'Bus Tracking', path: '/dashboard/transport' },
-                { icon: Bell, label: 'Messages', path: '/dashboard/messages' },
+                ...parent
             ];
             default: return common;
         }

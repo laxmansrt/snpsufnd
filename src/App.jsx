@@ -35,6 +35,7 @@ import ManageApplicationsPage from './pages/admin/ManageApplicationsPage';
 import AdminGalleryPage from './pages/admin/AdminGalleryPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import FeedbackPage from './pages/FeedbackPage';
+import PlacementsHRDPage from './pages/PlacementsHRDPage';
 import PlaceholderPage from './components/PlaceholderPage';
 import { Users, BookOpen, Calendar, FileText, DollarSign, Bus, Home, Bell, Settings } from 'lucide-react';
 
@@ -65,6 +66,8 @@ const RoleBasedRedirect = () => {
       return <Navigate to="/dashboard/faculty" replace />;
     case 'parent':
       return <Navigate to="/dashboard/parent" replace />;
+    case 'hrd':
+      return <Navigate to="/dashboard/placements" replace />;
     case 'student':
     default:
       return <Navigate to="/dashboard/student" replace />;
@@ -124,6 +127,7 @@ function App() {
               <Route path="admin/applications" element={<ManageApplicationsPage />} />
               <Route path="assignments" element={<AssignmentsPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
+              <Route path="placements" element={<PlacementsHRDPage />} />
 
               {/* Catch all for dashboard */}
               <Route path="*" element={<PlaceholderPage title="Page Not Found" description="The page you're looking for doesn't exist." />} />
