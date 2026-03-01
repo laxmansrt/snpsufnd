@@ -49,6 +49,7 @@ const LoginPage = () => {
         { id: 'parent', label: 'Parent' },
         { id: 'faculty', label: 'Faculty' },
         { id: 'admin', label: 'Admin' },
+        { id: 'hrd', label: 'HRD' },
     ];
 
     const features = [
@@ -104,7 +105,7 @@ const LoginPage = () => {
                         {/* Role Selection */}
                         <div className="bg-[#1e293b] p-2 rounded-xl mb-8 border border-gray-700">
                             <p className="text-center text-gray-400 text-sm mb-2">Select Your Role:</p>
-                            <div className="grid grid-cols-4 gap-2">
+                            <div className="grid grid-cols-5 gap-2">
                                 {roles.map((role) => (
                                     <button
                                         key={role.id}
