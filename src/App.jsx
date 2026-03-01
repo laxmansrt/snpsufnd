@@ -36,8 +36,9 @@ import AdminGalleryPage from './pages/admin/AdminGalleryPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import FeedbackPage from './pages/FeedbackPage';
 import PlacementsHRDPage from './pages/PlacementsHRDPage';
+import PlacementsStudentPage from './pages/PlacementsStudentPage';
 import PlaceholderPage from './components/PlaceholderPage';
-import { Users, BookOpen, Calendar, FileText, DollarSign, Bus, Home, Bell, Settings } from 'lucide-react';
+import { Users, BookOpen, Calendar, FileText, DollarSign, Bus, Home, Bell, Settings, Briefcase } from 'lucide-react';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -128,6 +129,7 @@ function App() {
               <Route path="assignments" element={<AssignmentsPage />} />
               <Route path="feedback" element={<FeedbackPage />} />
               <Route path="placements" element={<PlacementsHRDPage />} />
+              <Route path="student/placements" element={<PlacementsStudentPage />} />
 
               {/* Catch all for dashboard */}
               <Route path="*" element={<PlaceholderPage title="Page Not Found" description="The page you're looking for doesn't exist." />} />

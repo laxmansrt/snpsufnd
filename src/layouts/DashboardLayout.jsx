@@ -88,6 +88,7 @@ const DashboardLayout = () => {
         const student = [
             { icon: BookOpen, label: 'My Academics', path: '/dashboard/academics' },
             { icon: ClipboardList, label: 'Online Exams', path: '/dashboard/student/exams' },
+            { icon: Briefcase, label: 'Placements', path: '/dashboard/student/placements' },
             { icon: FileText, label: 'Study Material', path: '/dashboard/materials' },
             { icon: PenTool, label: 'Assignments', path: '/dashboard/assignments' },
             { icon: MessageCircle, label: 'Feedback', path: '/dashboard/feedback' },
