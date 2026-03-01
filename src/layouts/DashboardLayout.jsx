@@ -80,7 +80,6 @@ const DashboardLayout = () => {
             { icon: FileText, label: 'Marks Entry', path: '/dashboard/marks' },
             { icon: BookOpen, label: 'Study Material', path: '/dashboard/materials' },
             { icon: PenTool, label: 'Assignments', path: '/dashboard/assignments' },
-            { icon: MessageCircle, label: 'Feedback', path: '/dashboard/feedback' },
             { icon: Users, label: 'Student Insights', path: '/dashboard/students' },
             { icon: Bell, label: 'Announcements', path: '/dashboard/announcements' },
         ];

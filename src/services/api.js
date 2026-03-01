@@ -75,6 +75,27 @@ export const authAPI = {
         if (!response.ok) throw new Error(data.message || 'Failed to update password');
         return data;
     },
+
+    deleteUser: async (id) => {
+        const response = await fetch(`${API_URL}/auth/users/${id}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to delete user');
+        return data;
+    },
+
+    updateUser: async (id, userData) => {
+        const response = await fetch(`${API_URL}/auth/users/${id}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(userData),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Failed to update user');
+        return data;
+    },
 };
 
 // Lost & Found API
