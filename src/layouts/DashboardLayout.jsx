@@ -17,7 +17,9 @@ import {
     X,
     Search,
     HelpCircle,
-    ClipboardList
+    ClipboardList,
+    PenTool,
+    MessageCircle
 } from 'lucide-react';
 import clsx from 'clsx';
 import AIChat from '../components/AIChat';
@@ -63,6 +65,8 @@ const DashboardLayout = () => {
             { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
             { icon: FileText, label: 'Results', path: '/dashboard/results' },
             { icon: ClipboardList, label: 'Exams', path: '/dashboard/admin/create-exam' },
+            { icon: PenTool, label: 'Assignments', path: '/dashboard/assignments' },
+            { icon: MessageCircle, label: 'Feedback', path: '/dashboard/feedback' },
             { icon: FileText, label: 'Applications', path: '/dashboard/admin/applications' },
             { icon: DollarSign, label: 'Finance', path: '/dashboard/finance' },
             { icon: Bus, label: 'Transport', path: '/dashboard/transport' },
@@ -75,6 +79,8 @@ const DashboardLayout = () => {
             { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
             { icon: FileText, label: 'Marks Entry', path: '/dashboard/marks' },
             { icon: BookOpen, label: 'Study Material', path: '/dashboard/materials' },
+            { icon: PenTool, label: 'Assignments', path: '/dashboard/assignments' },
+            { icon: MessageCircle, label: 'Feedback', path: '/dashboard/feedback' },
             { icon: Users, label: 'Student Insights', path: '/dashboard/students' },
             { icon: Bell, label: 'Announcements', path: '/dashboard/announcements' },
         ];
@@ -83,6 +89,8 @@ const DashboardLayout = () => {
             { icon: BookOpen, label: 'My Academics', path: '/dashboard/academics' },
             { icon: ClipboardList, label: 'Online Exams', path: '/dashboard/student/exams' },
             { icon: FileText, label: 'Study Material', path: '/dashboard/materials' },
+            { icon: PenTool, label: 'Assignments', path: '/dashboard/assignments' },
+            { icon: MessageCircle, label: 'Feedback', path: '/dashboard/feedback' },
             { icon: Calendar, label: 'Attendance', path: '/dashboard/attendance' },
             { icon: FileText, label: 'Applications', path: '/dashboard/student/applications' },
             { icon: DollarSign, label: 'Fee Status', path: '/dashboard/fees' },
