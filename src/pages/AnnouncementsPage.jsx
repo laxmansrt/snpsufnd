@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { announcementAPI } from '../services/announcementService';
-import { Bell, Plus, X, AlertTriangle, Info, Calendar, User, Trash2, Edit } from 'lucide-react';
+import { academicAPI } from '../services/academicService';
+import { Bell, Plus, X, AlertTriangle, Info, Calendar, User, Trash2, Edit, ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
 
 const AnnouncementsPage = () => {
@@ -10,12 +11,14 @@ const AnnouncementsPage = () => {
     const [loading, setLoading] = useState(true);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState('all');
+    const [departments, setDepartments] = useState([]);
     const [formData, setFormData] = useState({
         title: '',
         content: '',
         category: 'general',
         targetAudience: ['all'],
-        priority: 'medium',
+        targetClasses: [],
+        priority: 'normal',
         expiresAt: '',
     });
 
@@ -31,7 +34,48 @@ const AnnouncementsPage = () => {
 
     useEffect(() => {
         loadAnnouncements();
+        loadDepartments();
     }, [selectedCategory]);
+
+    const loadDepartments = async () => {
+        try {
+            const data = await academicAPI.getDepartments();
+            setDepartments(data);
+        } catch (error) {
+            console.error('Error loading departments:', error);
+        }
+    };
+
+    const handleAudienceToggle = (value) => {
+        setFormData(prev => {
+            let newAudience;
+            if (value === 'all') {
+                newAudience = ['all'];
+            } else {
+                const filtered = prev.targetAudience.filter(a => a !== 'all');
+                if (filtered.includes(value)) {
+                    newAudience = filtered.filter(a => a !== value);
+                } else {
+                    newAudience = [...filtered, value];
+                }
+                if (newAudience.length === 0) newAudience = ['all'];
+            }
+            // Clear departments if student is deselected
+            const newClasses = newAudience.includes('student') ? prev.targetClasses : [];
+            return { ...prev, targetAudience: newAudience, targetClasses: newClasses };
+        });
+    };
+
+    const handleDeptToggle = (deptCode) => {
+        setFormData(prev => {
+            const current = prev.targetClasses;
+            if (current.includes(deptCode)) {
+                return { ...prev, targetClasses: current.filter(d => d !== deptCode) };
+            } else {
+                return { ...prev, targetClasses: [...current, deptCode] };
+            }
+        });
+    };
 
     const loadAnnouncements = async () => {
         try {
@@ -60,7 +104,8 @@ const AnnouncementsPage = () => {
                 content: '',
                 category: 'general',
                 targetAudience: ['all'],
-                priority: 'medium',
+                targetClasses: [],
+                priority: 'normal',
                 expiresAt: '',
             });
             loadAnnouncements();
@@ -92,6 +137,7 @@ const AnnouncementsPage = () => {
     const getPriorityBadge = (priority) => {
         const colors = {
             low: 'bg-gray-500/20 text-gray-400',
+            normal: 'bg-green-500/20 text-green-400',
             medium: 'bg-blue-500/20 text-blue-400',
             high: 'bg-orange-500/20 text-orange-400',
             urgent: 'bg-red-500/20 text-red-400',
@@ -275,6 +321,7 @@ const AnnouncementsPage = () => {
                                         className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
                                     >
                                         <option value="low">Low</option>
+                                        <option value="normal">Normal</option>
                                         <option value="medium">Medium</option>
                                         <option value="high">High</option>
                                         <option value="urgent">Urgent</option>
@@ -284,17 +331,56 @@ const AnnouncementsPage = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Target Audience</label>
-                                <select
-                                    value={formData.targetAudience[0]}
-                                    onChange={(e) => setFormData({ ...formData, targetAudience: [e.target.value] })}
-                                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:ring-2 focus:ring-[#d4af37] outline-none"
-                                >
-                                    <option value="all">All</option>
-                                    <option value="student">Students</option>
-                                    <option value="faculty">Faculty</option>
-                                    <option value="parent">Parents</option>
-                                </select>
+                                <div className="flex flex-wrap gap-3">
+                                    {[
+                                        { value: 'all', label: 'All' },
+                                        { value: 'student', label: 'Students' },
+                                        { value: 'faculty', label: 'Faculty' },
+                                        { value: 'parent', label: 'Parents' },
+                                        { value: 'admin', label: 'Admin' },
+                                    ].map(option => (
+                                        <button
+                                            key={option.value}
+                                            type="button"
+                                            onClick={() => handleAudienceToggle(option.value)}
+                                            className={clsx(
+                                                'px-4 py-2 rounded-lg font-medium text-sm transition-all border',
+                                                formData.targetAudience.includes(option.value)
+                                                    ? 'bg-[#d4af37] text-[#111827] border-[#d4af37]'
+                                                    : 'bg-gray-900 text-gray-400 border-gray-700 hover:border-gray-500'
+                                            )}
+                                        >
+                                            {option.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
+
+                            {/* Department Selection - visible when 'student' is selected */}
+                            {formData.targetAudience.includes('student') && departments.length > 0 && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                                        Target Departments {formData.targetClasses.length === 0 && <span className="text-gray-500">(All departments if none selected)</span>}
+                                    </label>
+                                    <div className="flex flex-wrap gap-2 p-3 rounded-lg bg-gray-900 border border-gray-700 max-h-40 overflow-y-auto">
+                                        {departments.map(dept => (
+                                            <button
+                                                key={dept._id || dept.code}
+                                                type="button"
+                                                onClick={() => handleDeptToggle(dept.code)}
+                                                className={clsx(
+                                                    'px-3 py-1.5 rounded-md text-xs font-medium transition-all border',
+                                                    formData.targetClasses.includes(dept.code)
+                                                        ? 'bg-blue-500/20 text-blue-400 border-blue-500/50'
+                                                        : 'bg-gray-800 text-gray-400 border-gray-600 hover:border-gray-400'
+                                                )}
+                                            >
+                                                {dept.name} ({dept.code})
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-300 mb-2">Expires At (Optional)</label>
