@@ -279,6 +279,11 @@ const UserManagementPage = () => {
                                     <input type="email" required className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
                                         value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} />
                                 </div>
+                                <div className="col-span-2">
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Password</label>
+                                    <input type="password" required className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
+                                        value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} />
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-400 mb-1">Role</label>
                                     <select className="w-full px-4 py-2 bg-[#0f172a] border border-gray-700 rounded-lg text-white outline-none focus:ring-2 focus:ring-[#d4af37]"
