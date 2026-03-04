@@ -38,8 +38,12 @@ const LandingPage = () => {
     const [loadingGallery, setLoadingGallery] = useState(false);
     const [installPrompt, setInstallPrompt] = useState(null);
     const [showInstallBanner, setShowInstallBanner] = useState(false);
+    const [showInstallModal, setShowInstallModal] = useState(false);
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const isMobile = isIOS || isAndroid;
 
-    // Capture the beforeinstallprompt event for custom install button
+    // Capture the beforeinstallprompt event for native install on Android Chrome
     useEffect(() => {
         const handler = (e) => {
             e.preventDefault();
@@ -47,7 +51,6 @@ const LandingPage = () => {
             setShowInstallBanner(true);
         };
         window.addEventListener('beforeinstallprompt', handler);
-        // Also check if already installed
         window.addEventListener('appinstalled', () => {
             setShowInstallBanner(false);
             setInstallPrompt(null);
@@ -56,12 +59,17 @@ const LandingPage = () => {
     }, []);
 
     const handleInstallClick = async () => {
-        if (!installPrompt) return;
-        installPrompt.prompt();
-        const { outcome } = await installPrompt.userChoice;
-        if (outcome === 'accepted') {
-            setShowInstallBanner(false);
-            setInstallPrompt(null);
+        if (installPrompt) {
+            // Native install prompt available - use it directly!
+            installPrompt.prompt();
+            const { outcome } = await installPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setShowInstallBanner(false);
+                setInstallPrompt(null);
+            }
+        } else {
+            // Show manual instructions modal
+            setShowInstallModal(true);
         }
     };
 
@@ -338,13 +346,13 @@ const LandingPage = () => {
                                     <Globe size={20} />
                                     Virtual Tour
                                 </button>
-                                {/* PWA Install Button - only shows when browser supports it */}
-                                {showInstallBanner && (
+                                {/* PWA Install Button - always visible on mobile, uses native prompt if available */}
+                                {(isMobile || showInstallBanner) && (
                                     <button
                                         onClick={handleInstallClick}
-                                        className="group px-8 py-4 bg-green-500 hover:bg-green-400 text-white rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30 flex items-center gap-2 animate-pulse-slow"
+                                        className="group px-8 py-4 bg-green-500 hover:bg-green-400 text-white rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30 flex items-center gap-2"
                                     >
-                                        <Download size={20} className="group-hover:animate-bounce" />
+                                        <Download size={20} />
                                         Install App
                                     </button>
                                 )}
@@ -436,10 +444,10 @@ const LandingPage = () => {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* Schools & Departments Section */}
-            <section className="py-24 bg-[#0f1d35] relative overflow-hidden">
+            < section className="py-24 bg-[#0f1d35] relative overflow-hidden" >
                 <div className="absolute inset-0 opacity-50 pointer-events-none flex items-center justify-center overflow-hidden">
                     <img
                         src={logoBg}
@@ -477,26 +485,28 @@ const LandingPage = () => {
                         ))}
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* Campus Life Slideshow */}
-            <section className="relative h-screen bg-[#0a1628] overflow-hidden">
+            < section className="relative h-screen bg-[#0a1628] overflow-hidden" >
                 {/* Slideshow Images */}
-                {campusImages.map((img, index) => (
-                    <div
-                        key={index}
-                        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${currentSlide === index ? 'opacity-100' : 'opacity-0'
-                            }`}
-                    >
-                        <img
-                            src={img}
-                            alt={`Campus Life ${index + 1}`}
-                            className="w-full h-full object-cover"
-                        />
-                        {/* Overlay gradient for text readability */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-transparent to-transparent"></div>
-                    </div>
-                ))}
+                {
+                    campusImages.map((img, index) => (
+                        <div
+                            key={index}
+                            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${currentSlide === index ? 'opacity-100' : 'opacity-0'
+                                }`}
+                        >
+                            <img
+                                src={img}
+                                alt={`Campus Life ${index + 1}`}
+                                className="w-full h-full object-cover"
+                            />
+                            {/* Overlay gradient for text readability */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] via-transparent to-transparent"></div>
+                        </div>
+                    ))
+                }
 
                 {/* Content Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-12 z-10 bg-gradient-to-t from-[#0a1628] to-transparent">
@@ -521,16 +531,16 @@ const LandingPage = () => {
                         />
                     ))}
                 </div>
-            </section>
+            </section >
 
             {/* Feature Sections */}
-            <section className="w-full">
+            < section className="w-full" >
                 <img
                     src={feature1}
                     alt="Feature Section 1"
                     className="w-full h-auto object-cover"
                 />
-            </section>
+            </section >
             <section className="w-full">
                 <img
                     src={feature2}
@@ -699,137 +709,139 @@ const LandingPage = () => {
             </section>
 
             {/* Virtual Tour Modal */}
-            {showTour && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
-                    <div
-                        className="absolute inset-0 bg-black/90 backdrop-blur-md animate-fade-in"
-                        onClick={() => setShowTour(false)}
-                    ></div>
-                    <div className="relative w-full max-w-6xl h-[85vh] bg-[#0f1d35] rounded-3xl overflow-hidden border border-white/10 shadow-2xl animate-scale-in flex flex-col">
-                        {/* Modal Header */}
-                        <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/20">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-[#d4af37]/20 rounded-lg">
-                                    <Globe className="text-[#d4af37]" />
+            {
+                showTour && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+                        <div
+                            className="absolute inset-0 bg-black/90 backdrop-blur-md animate-fade-in"
+                            onClick={() => setShowTour(false)}
+                        ></div>
+                        <div className="relative w-full max-w-6xl h-[85vh] bg-[#0f1d35] rounded-3xl overflow-hidden border border-white/10 shadow-2xl animate-scale-in flex flex-col">
+                            {/* Modal Header */}
+                            <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/20">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-[#d4af37]/20 rounded-lg">
+                                        <Globe className="text-[#d4af37]" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-white font-bold text-xl">Dynamic Campus Tour</h3>
+                                        <p className="text-xs text-gray-400">Experience our campus through photos and event videos</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="text-white font-bold text-xl">Dynamic Campus Tour</h3>
-                                    <p className="text-xs text-gray-400">Experience our campus through photos and event videos</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                {/* Category Filters */}
-                                <div className="hidden md:flex items-center gap-2 bg-gray-900/50 p-1 rounded-xl border border-white/10">
-                                    {['All', 'Function', 'Campus', 'Sports', 'Event'].map(cat => (
-                                        <button
-                                            key={cat}
-                                            onClick={() => setSelectedCategory(cat)}
-                                            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-[#d4af37] text-[#0a1628]' : 'text-gray-400 hover:text-white'}`}
-                                        >
-                                            {cat}
-                                        </button>
-                                    ))}
-                                </div>
-                                <button
-                                    onClick={() => setShowTour(false)}
-                                    className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Modal Content */}
-                        <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
-                            {loadingGallery ? (
-                                <div className="h-full flex flex-col items-center justify-center gap-4">
-                                    <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
-                                    <p className="text-gray-400 animate-pulse">Loading amazing memories...</p>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {galleryItems
-                                        .filter(item => selectedCategory === 'All' || item.category === selectedCategory)
-                                        .map((item, index) => (
-                                            <div
-                                                key={item._id}
-                                                className="group relative bg-[#1a2942] rounded-2xl overflow-hidden border border-white/10 hover:border-[#d4af37]/50 transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#d4af37]/10"
-                                                style={{ animationDelay: `${index * 100}ms` }}
+                                <div className="flex items-center gap-4">
+                                    {/* Category Filters */}
+                                    <div className="hidden md:flex items-center gap-2 bg-gray-900/50 p-1 rounded-xl border border-white/10">
+                                        {['All', 'Function', 'Campus', 'Sports', 'Event'].map(cat => (
+                                            <button
+                                                key={cat}
+                                                onClick={() => setSelectedCategory(cat)}
+                                                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${selectedCategory === cat ? 'bg-[#d4af37] text-[#0a1628]' : 'text-gray-400 hover:text-white'}`}
                                             >
-                                                <div className="aspect-video relative overflow-hidden">
-                                                    {item.type === 'image' ? (
-                                                        <img
-                                                            src={item.url}
-                                                            alt={item.title}
-                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-                                                            <PlayCircle className="text-[#d4af37]/80 group-hover:text-[#d4af37] transition-colors" size={64} />
-                                                            {/* Thumbnail placeholder for video */}
-                                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
-                                                                <span className="text-white font-bold text-sm flex items-center gap-2">
-                                                                    <Video size={16} /> Play Video
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {/* Category Badge */}
-                                                    <div className="absolute top-4 left-4">
-                                                        <span className="px-3 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold rounded-full uppercase tracking-wider border border-white/10">
-                                                            {item.category}
-                                                        </span>
-                                                    </div>
-
-                                                    {/* Action Overlay */}
-                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        {item.type === 'video' ? (
-                                                            <a
-                                                                href={item.url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="px-6 py-2 bg-[#d4af37] text-[#0a1628] rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
-                                                            >
-                                                                Watch Now
-                                                            </a>
-                                                        ) : (
-                                                            <button
-                                                                className="px-6 py-2 bg-white text-[#0a1628] rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
-                                                                onClick={() => window.open(item.url, '_blank')}
-                                                            >
-                                                                View Full
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div className="p-4 space-y-1">
-                                                    <h4 className="text-white font-bold group-hover:text-[#d4af37] transition-colors line-clamp-1">{item.title}</h4>
-                                                    <p className="text-gray-400 text-xs line-clamp-2">{item.description}</p>
-                                                </div>
-                                            </div>
+                                                {cat}
+                                            </button>
                                         ))}
-
-                                    {galleryItems.filter(item => selectedCategory === 'All' || item.category === selectedCategory).length === 0 && (
-                                        <div className="col-span-full py-20 text-center">
-                                            <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
-                                                <ImageIcon className="text-gray-600" size={32} />
-                                            </div>
-                                            <h3 className="text-white font-bold text-lg">No Items Found</h3>
-                                            <p className="text-gray-400 text-sm">We are currently updating this category with more memories.</p>
-                                        </div>
-                                    )}
+                                    </div>
+                                    <button
+                                        onClick={() => setShowTour(false)}
+                                        className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all"
+                                    >
+                                        <X size={20} />
+                                    </button>
                                 </div>
-                            )}
-                        </div>
+                            </div>
 
-                        {/* Modal Footer */}
-                        <div className="p-4 border-t border-white/10 bg-black/40 text-center">
-                            <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Sapthagiri NPS University • Official Digital Archive</p>
+                            {/* Modal Content */}
+                            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+                                {loadingGallery ? (
+                                    <div className="h-full flex flex-col items-center justify-center gap-4">
+                                        <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
+                                        <p className="text-gray-400 animate-pulse">Loading amazing memories...</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {galleryItems
+                                            .filter(item => selectedCategory === 'All' || item.category === selectedCategory)
+                                            .map((item, index) => (
+                                                <div
+                                                    key={item._id}
+                                                    className="group relative bg-[#1a2942] rounded-2xl overflow-hidden border border-white/10 hover:border-[#d4af37]/50 transition-all hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#d4af37]/10"
+                                                    style={{ animationDelay: `${index * 100}ms` }}
+                                                >
+                                                    <div className="aspect-video relative overflow-hidden">
+                                                        {item.type === 'image' ? (
+                                                            <img
+                                                                src={item.url}
+                                                                alt={item.title}
+                                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                                                                <PlayCircle className="text-[#d4af37]/80 group-hover:text-[#d4af37] transition-colors" size={64} />
+                                                                {/* Thumbnail placeholder for video */}
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-4">
+                                                                    <span className="text-white font-bold text-sm flex items-center gap-2">
+                                                                        <Video size={16} /> Play Video
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Category Badge */}
+                                                        <div className="absolute top-4 left-4">
+                                                            <span className="px-3 py-1 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold rounded-full uppercase tracking-wider border border-white/10">
+                                                                {item.category}
+                                                            </span>
+                                                        </div>
+
+                                                        {/* Action Overlay */}
+                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                            {item.type === 'video' ? (
+                                                                <a
+                                                                    href={item.url}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="px-6 py-2 bg-[#d4af37] text-[#0a1628] rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+                                                                >
+                                                                    Watch Now
+                                                                </a>
+                                                            ) : (
+                                                                <button
+                                                                    className="px-6 py-2 bg-white text-[#0a1628] rounded-full font-bold transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
+                                                                    onClick={() => window.open(item.url, '_blank')}
+                                                                >
+                                                                    View Full
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-4 space-y-1">
+                                                        <h4 className="text-white font-bold group-hover:text-[#d4af37] transition-colors line-clamp-1">{item.title}</h4>
+                                                        <p className="text-gray-400 text-xs line-clamp-2">{item.description}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                        {galleryItems.filter(item => selectedCategory === 'All' || item.category === selectedCategory).length === 0 && (
+                                            <div className="col-span-full py-20 text-center">
+                                                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+                                                    <ImageIcon className="text-gray-600" size={32} />
+                                                </div>
+                                                <h3 className="text-white font-bold text-lg">No Items Found</h3>
+                                                <p className="text-gray-400 text-sm">We are currently updating this category with more memories.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="p-4 border-t border-white/10 bg-black/40 text-center">
+                                <p className="text-[10px] text-gray-500 uppercase tracking-[0.2em]">Sapthagiri NPS University • Official Digital Archive</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <AIChat />
 
@@ -856,7 +868,66 @@ const LandingPage = () => {
                     animation: bounce-subtle 3s ease-in-out infinite;
                 }
             `}</style>
-        </div>
+
+            {/* Install Instructions Modal */}
+            {showInstallModal && (
+                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end md:items-center justify-center z-[100] p-4" onClick={() => setShowInstallModal(false)}>
+                    <div className="bg-[#1e293b] rounded-2xl w-full max-w-sm border border-gray-700 shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-5 flex items-center gap-3">
+                            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                                <img src="/assets/logo.png" alt="EduSphere" className="w-10 h-10 object-contain" />
+                            </div>
+                            <div>
+                                <h3 className="text-white font-bold text-lg">Install EduSphere</h3>
+                                <p className="text-green-100 text-sm">Add to your home screen</p>
+                            </div>
+                            <button onClick={() => setShowInstallModal(false)} className="ml-auto text-white/70 hover:text-white text-2xl leading-none">×</button>
+                        </div>
+
+                        {/* Steps */}
+                        <div className="p-5">
+                            {isAndroid ? (
+                                <div className="space-y-4">
+                                    <p className="text-gray-300 text-sm font-medium mb-3">Follow these steps in Chrome:</p>
+                                    {[
+                                        { step: '1', icon: '⋮', text: 'Tap the 3-dot menu (⋮) at the top right of Chrome' },
+                                        { step: '2', icon: '📲', text: 'Tap "Add to Home screen" or "Install App"' },
+                                        { step: '3', icon: '✅', text: 'Tap "Add" to confirm — EduSphere will appear on your home screen!' }
+                                    ].map(({ step, icon, text }) => (
+                                        <div key={step} className="flex items-start gap-3">
+                                            <div className="w-7 h-7 rounded-full bg-green-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{step}</div>
+                                            <p className="text-gray-300 text-sm">{text}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    <p className="text-gray-300 text-sm font-medium mb-3">Follow these steps in Safari:</p>
+                                    {[
+                                        { step: '1', icon: '📤', text: 'Tap the Share button (□↑) at the bottom of Safari' },
+                                        { step: '2', icon: '📲', text: 'Scroll down and tap "Add to Home Screen"' },
+                                        { step: '3', icon: '✅', text: 'Tap "Add" — EduSphere will appear on your home screen!' }
+                                    ].map(({ step, icon, text }) => (
+                                        <div key={step} className="flex items-start gap-3">
+                                            <div className="w-7 h-7 rounded-full bg-blue-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{step}</div>
+                                            <p className="text-gray-300 text-sm">{text}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <button
+                                onClick={() => setShowInstallModal(false)}
+                                className="mt-5 w-full py-3 rounded-xl bg-green-500 hover:bg-green-400 text-white font-bold transition-colors"
+                            >
+                                Got it!
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div >
     );
 };
 
