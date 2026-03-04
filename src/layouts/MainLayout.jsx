@@ -1,8 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
-import { GraduationCap, LogIn } from 'lucide-react';
+import { GraduationCap, LogIn, Download } from 'lucide-react';
 
 const MainLayout = () => {
+    const [installPrompt, setInstallPrompt] = useState(null);
+    const [canInstall, setCanInstall] = useState(false);
+
+    useEffect(() => {
+        const handler = (e) => {
+            e.preventDefault();
+            setInstallPrompt(e);
+            setCanInstall(true);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        window.addEventListener('appinstalled', () => setCanInstall(false));
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstall = async () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        const { outcome } = await installPrompt.userChoice;
+        if (outcome === 'accepted') setCanInstall(false);
+    };
+
     return (
         <div className="min-h-screen flex flex-col">
             {/* Navbar */}
@@ -21,6 +42,18 @@ const MainLayout = () => {
                         <a href="#academics" className="text-sm font-medium hover:text-[hsl(var(--primary-light))] transition-colors">Academics</a>
                         <a href="#admissions" className="text-sm font-medium hover:text-[hsl(var(--primary-light))] transition-colors">Admissions</a>
                         <a href="#contact" className="text-sm font-medium hover:text-[hsl(var(--primary-light))] transition-colors">Contact</a>
+
+                        {/* PWA Install Button - shown only when browser supports it */}
+                        {canInstall && (
+                            <button
+                                onClick={handleInstall}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-400 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md shadow-green-500/30"
+                                title="Install EduSphere App"
+                            >
+                                <Download size={16} />
+                                Install App
+                            </button>
+                        )}
 
                         <Link to="/login" className="btn btn-primary text-sm py-2 px-5 shadow-lg shadow-blue-900/20">
                             <LogIn size={18} />

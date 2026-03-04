@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap, X, PlayCircle, Video, Image as ImageIcon } from 'lucide-react';
+import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap, X, PlayCircle, Video, Image as ImageIcon, Download, Smartphone } from 'lucide-react';
 import campus1 from '../assets/campus1.png';
 import campus2 from '../assets/campus2.png';
 import campus3 from '../assets/campus3.png';
@@ -36,6 +36,34 @@ const LandingPage = () => {
     const [galleryItems, setGalleryItems] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [loadingGallery, setLoadingGallery] = useState(false);
+    const [installPrompt, setInstallPrompt] = useState(null);
+    const [showInstallBanner, setShowInstallBanner] = useState(false);
+
+    // Capture the beforeinstallprompt event for custom install button
+    useEffect(() => {
+        const handler = (e) => {
+            e.preventDefault();
+            setInstallPrompt(e);
+            setShowInstallBanner(true);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        // Also check if already installed
+        window.addEventListener('appinstalled', () => {
+            setShowInstallBanner(false);
+            setInstallPrompt(null);
+        });
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        const { outcome } = await installPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setShowInstallBanner(false);
+            setInstallPrompt(null);
+        }
+    };
 
     // Generate random particle positions once (not on every render)
     const particles = useMemo(() =>
@@ -300,7 +328,7 @@ const LandingPage = () => {
                                     to="/login"
                                     className="group px-8 py-4 bg-[#d4af37] text-[#0a1628] rounded-xl font-bold text-lg hover:bg-[#c5a028] transition-all transform hover:scale-105 shadow-lg shadow-[#d4af37]/20 flex items-center gap-2"
                                 >
-                                    Apply Now
+                                    Login
                                     <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
                                 </Link>
                                 <button
@@ -310,6 +338,16 @@ const LandingPage = () => {
                                     <Globe size={20} />
                                     Virtual Tour
                                 </button>
+                                {/* PWA Install Button - only shows when browser supports it */}
+                                {showInstallBanner && (
+                                    <button
+                                        onClick={handleInstallClick}
+                                        className="group px-8 py-4 bg-green-500 hover:bg-green-400 text-white rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg shadow-green-500/30 flex items-center gap-2 animate-pulse-slow"
+                                    >
+                                        <Download size={20} className="group-hover:animate-bounce" />
+                                        Install App
+                                    </button>
+                                )}
                             </div>
 
                             {/* Daily Tip */}
