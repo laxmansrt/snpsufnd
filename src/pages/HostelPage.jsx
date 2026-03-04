@@ -3,28 +3,7 @@ import { Home, Users, Bed, Utensils, Phone, Mail, AlertCircle } from 'lucide-rea
 
 const HostelPage = () => {
     const [activeTab, setActiveTab] = useState('rooms');
-    const [showApplicationForm, setShowApplicationForm] = useState(false);
-    const [formData, setFormData] = useState({
-        studentUsn: '',
-        studentName: '',
-        email: '',
-        phone: '',
-        semester: '',
-        department: '',
-        roomPreference: 'double',
-        blockPreference: 'Block A',
-        guardianName: '',
-        guardianPhone: '',
-        guardianRelation: '',
-        permanentAddress: {
-            street: '',
-            city: '',
-            state: '',
-            pincode: '',
-        },
-        anyMedicalConditions: false,
-        medicalDetails: '',
-    });
+
 
     const rooms = [
         {

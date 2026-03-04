@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Globe, Users, GraduationCap, TrendingUp, Award, CheckCircle, MapPin, Phone, Mail, Clock, ArrowRight, BookOpen, Building2, Microscope, Briefcase, Heart, Shield, Activity, Bell, Sun, Moon, MessageCircle, Zap, X, PlayCircle, Video, Image as ImageIcon } from 'lucide-react';
 import campus1 from '../assets/campus1.png';
@@ -36,6 +36,16 @@ const LandingPage = () => {
     const [galleryItems, setGalleryItems] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [loadingGallery, setLoadingGallery] = useState(false);
+
+    // Generate random particle positions once (not on every render)
+    const particles = useMemo(() =>
+        [...Array(20)].map(() => ({
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 3}s`,
+            opacity: Math.random() * 0.5 + 0.3
+        })),
+        []);
 
     const campusImages = [
         campus1,
@@ -238,16 +248,11 @@ const LandingPage = () => {
 
                 {/* Floating Particles */}
                 <div className="absolute inset-0 overflow-hidden">
-                    {[...Array(20)].map((_, i) => (
+                    {particles.map((style, i) => (
                         <div
                             key={i}
                             className="absolute w-1 h-1 bg-[#d4af37] rounded-full animate-pulse"
-                            style={{
-                                top: `${Math.random() * 100}%`,
-                                left: `${Math.random() * 100}%`,
-                                animationDelay: `${Math.random() * 3}s`,
-                                opacity: Math.random() * 0.5 + 0.3
-                            }}
+                            style={style}
                         ></div>
                     ))}
                 </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getItems, addItem, claimItem, deleteItem } from '../services/lostFoundService';
 import { Search, MapPin, Phone, Tag, CheckCircle, AlertCircle, Trash2, Upload } from 'lucide-react';
@@ -10,8 +10,6 @@ const LostFound = () => {
     const [items, setItems] = useState([]);
     const [filter, setFilter] = useState('all'); // all, lost, found
     const [searchTerm, setSearchTerm] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [selectedImage, setSelectedImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
 
     // Form States
@@ -23,16 +21,14 @@ const LostFound = () => {
         type: 'lost'
     });
 
-    useEffect(() => {
-        loadItems();
-    }, []);
-
-    const loadItems = async () => {
-        setLoading(true);
+    const loadItems = useCallback(async () => {
         const data = await getItems();
         setItems(data);
-        setLoading(false);
-    };
+    }, []);
+
+    useEffect(() => {
+        loadItems();
+    }, [loadItems]);
 
     const handleImageSelect = (e) => {
         const file = e.target.files[0];
@@ -47,7 +43,6 @@ const LostFound = () => {
                 alert('Please select an image file');
                 return;
             }
-            setSelectedImage(file);
             // Create preview
             const reader = new FileReader();
             reader.onloadend = () => {
